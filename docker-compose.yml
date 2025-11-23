@@ -1,0 +1,223 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: replycompass_db
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    environment:
+      - POSTGRES_DB=${DB_NAME:-replycompass}
+      - POSTGRES_USER=${DB_USER:-replycompass_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-changeme}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    networks:
+      - replycompass_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-replycompass_user} -d ${DB_NAME:-replycompass}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache & Message Broker
+  redis:
+    image: redis:7-alpine
+    container_name: replycompass_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-changeme}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - replycompass_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Django Web Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ${BUILD_TARGET:-production}
+    container_name: replycompass_web
+    restart: unless-stopped
+    entrypoint: /app/scripts/entrypoint.sh
+    command: >
+      sh -c "
+      if [ \"$${DEBUG:-False}\" = \"True\" ]; then
+        echo '🔥 Starting in DEVELOPMENT mode with auto-reload...';
+        python manage.py runserver 0.0.0.0:8000;
+      else
+        echo '🚀 Starting in PRODUCTION mode with Gunicorn...';
+        gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --access-logfile - --error-logfile -;
+      fi
+      "
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/mediafiles
+    ports:
+      - "${WEB_PORT:-8000}:8000"
+    env_file:
+      - .env
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-config.settings.production}
+      - DATABASE_URL=postgresql://${DB_USER:-replycompass_user}:${DB_PASSWORD:-changeme}@db:5432/${DB_NAME:-replycompass}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - DB_HOST=db
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-changeme}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - replycompass_network
+    develop:
+      watch:
+        - action: sync
+          path: ./apps
+          target: /app/apps
+          ignore:
+            - "**/__pycache__"
+            - "**/*.pyc"
+        - action: sync
+          path: ./config
+          target: /app/config
+          ignore:
+            - "**/__pycache__"
+            - "**/*.pyc"
+        - action: sync+restart
+          path: ./requirements.txt
+          target: /app/requirements.txt
+        - action: rebuild
+          path: ./Dockerfile
+
+  # Celery Worker (for background tasks)
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ${BUILD_TARGET:-production}
+    container_name: replycompass_celery_worker
+    restart: unless-stopped
+    command: celery -A config worker --loglevel=info --concurrency=2
+    volumes:
+      - .:/app
+      - media_volume:/app/mediafiles
+    env_file:
+      - .env
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-config.settings.production}
+      - DATABASE_URL=postgresql://${DB_USER:-replycompass_user}:${DB_PASSWORD:-changeme}@db:5432/${DB_NAME:-replycompass}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - DB_HOST=db
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-changeme}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_started
+    networks:
+      - replycompass_network
+    develop:
+      watch:
+        - action: sync
+          path: ./apps
+          target: /app/apps
+          ignore:
+            - "**/__pycache__"
+            - "**/*.pyc"
+        - action: sync
+          path: ./config
+          target: /app/config
+          ignore:
+            - "**/__pycache__"
+            - "**/*.pyc"
+
+  # Celery Beat (for scheduled tasks)
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ${BUILD_TARGET:-production}
+    container_name: replycompass_celery_beat
+    restart: unless-stopped
+    command: celery -A config beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-config.settings.production}
+      - DATABASE_URL=postgresql://${DB_USER:-replycompass_user}:${DB_PASSWORD:-changeme}@db:5432/${DB_NAME:-replycompass}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - DB_HOST=db
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-changeme}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_started
+    networks:
+      - replycompass_network
+
+  # Nginx Reverse Proxy (Production)
+  nginx:
+    image: nginx:alpine
+    container_name: replycompass_nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/mediafiles:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - web
+    networks:
+      - replycompass_network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  static_volume:
+    driver: local
+  media_volume:
+    driver: local
+
+networks:
+  replycompass_network:
+    driver: bridge
