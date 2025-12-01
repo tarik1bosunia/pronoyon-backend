@@ -43,5 +43,13 @@ EOF
 echo "Seeding RBAC data..."
 python manage.py seed_rbac || echo "RBAC data already seeded or error occurred"
 
+# Seed Question Bank permissions
+echo "Seeding Question Bank permissions..."
+python manage.py seed_question_bank || echo "Question Bank data already seeded or error occurred"
+
+# Create default superuser
+echo "Creating default superuser..."
+python manage.py create_superuser || echo "Superuser already exists"
+
 echo "Starting application..."
 exec "$@"

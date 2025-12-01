@@ -41,6 +41,9 @@ RUN pip install --no-cache-dir \
 # Copy project files
 COPY . .
 
+# Set execute permissions on shell scripts
+RUN chmod +x /app/scripts/*.sh
+
 # Create directories for static and media files
 RUN mkdir -p /app/staticfiles /app/mediafiles /app/logs
 
@@ -57,6 +60,9 @@ FROM base AS production
 
 # Copy project files
 COPY . .
+
+# Set execute permissions on shell scripts
+RUN chmod +x /app/scripts/*.sh
 
 # Create directories for static and media files
 RUN mkdir -p /app/staticfiles /app/mediafiles /app/logs

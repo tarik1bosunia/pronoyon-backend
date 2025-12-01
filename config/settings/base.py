@@ -69,6 +69,8 @@ LOCAL_APPS = [
     'apps.accounts',
     'apps.core',
     'apps.rbac',  # Role-Based Access Control
+    'apps.questions',  # Question Bank
+    'apps.payments',  # Wallet & Payments
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

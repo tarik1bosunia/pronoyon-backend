@@ -23,6 +23,14 @@ class Permission(models.Model):
         ('support', 'Customer Support'),
         ('api', 'API Access'),
         ('admin', 'Administration'),
+        # Question Bank Categories
+        ('question', 'Question Management'),
+        ('draft', 'Draft Management'),
+        ('subject', 'Subject Management'),
+        ('topic', 'Topic Management'),
+        ('payment', 'Payment Management'),
+        ('wallet', 'Wallet Management'),
+        ('pdf', 'PDF Export'),
     ]
     
     name = models.CharField(

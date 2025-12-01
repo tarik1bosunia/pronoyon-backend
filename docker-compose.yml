@@ -47,14 +47,22 @@ services:
       target: ${BUILD_TARGET:-production}
     container_name: replycompass_web
     restart: unless-stopped
-    entrypoint: /app/scripts/entrypoint.sh
+    # entrypoint: /app/scripts/entrypoint.sh
     command: >
       sh -c "
+      echo 'Waiting for database...';
+      while ! nc -z db 5432; do sleep 0.1; done;
+      echo 'Database ready! Running migrations...';
+      python manage.py migrate --noinput;
+      echo 'Seeding RBAC...';
+      python manage.py seed_rbac || echo 'RBAC already seeded';
+      python manage.py seed_question_bank || echo 'Question Bank already seeded';
+      python manage.py create_superuser || echo 'Superuser exists';
       if [ \"$${DEBUG:-False}\" = \"True\" ]; then
-        echo '🔥 Starting in DEVELOPMENT mode with auto-reload...';
+        echo '🔥 Starting in DEVELOPMENT mode...';
         python manage.py runserver 0.0.0.0:8000;
       else
-        echo '🚀 Starting in PRODUCTION mode with Gunicorn...';
+        echo '🚀 Starting in PRODUCTION mode...';
         gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --access-logfile - --error-logfile -;
       fi
       "
