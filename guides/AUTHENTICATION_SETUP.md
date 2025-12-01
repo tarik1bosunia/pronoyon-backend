@@ -17,9 +17,10 @@ Your project supports **TWO authentication methods**:
 
 ## ✅ Current Configuration Status
 
-### What's Already Configured:
+### What's Already Configured
 
 #### 1. Django Allauth (✅ Installed)
+
 ```python
 INSTALLED_APPS = [
     'allauth',
@@ -30,6 +31,7 @@ INSTALLED_APPS = [
 ```
 
 #### 2. dj-rest-auth (✅ Installed)
+
 ```python
 INSTALLED_APPS = [
     'dj_rest_auth',
@@ -38,6 +40,7 @@ INSTALLED_APPS = [
 ```
 
 #### 3. Authentication Backend (✅ Configured)
+
 ```python
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Email/Password
@@ -46,12 +49,14 @@ AUTHENTICATION_BACKENDS = [
 ```
 
 #### 4. Custom User Model (✅ Configured)
+
 ```python
 AUTH_USER_MODEL = 'accounts.CustomUser'
 # Uses email as username field (no separate username)
 ```
 
 #### 5. JWT Configuration (✅ Configured)
+
 ```python
 REST_AUTH = {
     'USE_JWT': True,
@@ -62,6 +67,7 @@ REST_AUTH = {
 ```
 
 #### 6. Email/Password Settings (✅ Configured)
+
 ```python
 ACCOUNT_LOGIN_METHODS = ['email']  # Email-based login
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # For development
@@ -70,6 +76,7 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # No username, email only
 ```
 
 #### 7. Social Account Settings (✅ Configured)
+
 ```python
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
@@ -189,14 +196,16 @@ Response:
 
 ## 🔧 Setup Required: Google OAuth
 
-### Current Status:
+### Current Status
+
 - ⚠️ **Site Domain**: Currently set to `example.com` (needs update)
 - ⚠️ **Google OAuth App**: Not configured in database
 - ⚠️ **Google Credentials**: Need to be added to `.env`
 
-### Steps to Enable Google OAuth:
+### Steps to Enable Google OAuth
 
 #### Step 1: Update Django Site
+
 ```bash
 docker compose exec web python manage.py shell
 
@@ -212,7 +221,7 @@ exit()
 #### Step 2: Create Google OAuth App
 
 1. **Go to Google Cloud Console**
-   - Visit: https://console.cloud.google.com/
+   - Visit: <https://console.cloud.google.com/>
 
 2. **Create/Select Project**
    - Create a new project or select existing one
@@ -228,16 +237,17 @@ exit()
    - Click "Create Credentials" > "OAuth 2.0 Client ID"
    - Application type: "Web application"
    - Name: "ReplyCompass Web"
-   
+
 5. **Configure OAuth Consent Screen**
    - User Type: "External" (for development)
    - App name: "ReplyCompass"
-   - User support email: your-email@example.com
-   - Developer contact: your-email@example.com
+   - User support email: <your-email@example.com>
+   - Developer contact: <your-email@example.com>
    - Add scopes: `email`, `profile`, `openid`
 
 6. **Add Authorized JavaScript Origins** (required for the popup/token flow)
-  ```
+
+  ```text
   Development:
   http://localhost:3000
   http://localhost:8000  # Optional API origin if you open the popup from backend domain
@@ -248,8 +258,10 @@ exit()
   ```
 
 7. **(Optional) Add Authorized Redirect URIs**
-  - Only needed if you keep a fallback redirect-based flow.
-  ```
+
+- Only needed if you keep a fallback redirect-based flow.
+
+  ```text
   http://localhost:3000/auth/google/callback
   https://yourdomain.com/auth/google/callback
   ```
@@ -259,6 +271,7 @@ exit()
    - Client Secret: `xxxxxxxxxxxxxxx`
 
 #### Step 3: Update .env File
+
 ```bash
 # Edit .env or .env.docker
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
@@ -271,6 +284,7 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 #### Step 4: Configure Social App in Django Admin
 
 **Option A: Using Django Admin (Recommended)**
+
 ```bash
 # 1. Login to admin: http://localhost:8000/admin/
 # 2. Go to "Sites" > "Social applications" > "Add social application"
@@ -284,6 +298,7 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 ```
 
 **Option B: Using Django Shell (Automated)**
+
 ```bash
 docker compose exec web python manage.py shell
 
@@ -336,6 +351,7 @@ urlpatterns = [
 ```
 
 #### Step 6: Restart Server
+
 ```bash
 docker compose restart web
 ```
@@ -380,6 +396,7 @@ curl -X POST http://localhost:8000/api/auth/login/ \
 ### Test 2: Google OAuth Login (After Setup)
 
 **Frontend Flow:**
+
 ```javascript
 import { useGoogleLogin } from '@react-oauth/google';
 
@@ -405,6 +422,7 @@ loginWithGoogle();
 ```
 
 **Direct API Test:**
+
 ```bash
 # Use a valid Google OAuth access token obtained via Google Identity Services
 curl -X POST http://localhost:8000/api/auth/google/ \
@@ -419,6 +437,7 @@ curl -X POST http://localhost:8000/api/auth/google/ \
 ## 🔐 Security Configuration
 
 ### Development Settings (Current)
+
 ```python
 # .env
 DEBUG=True
@@ -428,6 +447,7 @@ CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
 ```
 
 ### Production Settings (Recommended)
+
 ```python
 # .env (production)
 DEBUG=False
@@ -444,6 +464,7 @@ CORS_ALLOWED_ORIGINS=https://yourdomain.com
 ## 📊 User Flow Diagrams
 
 ### Email/Password Flow
+
 ```
 User                    Frontend                Backend
  |                         |                       |
@@ -461,6 +482,7 @@ User                    Frontend                Backend
 ```
 
 ### Google OAuth Flow (Token Exchange)
+
 ```
 User                Frontend                Google                Backend
  |                     |                       |                       |
@@ -668,6 +690,7 @@ export default {
 ## 🔍 Verification Checklist
 
 ### ✅ Email/Password Authentication
+
 - [x] Custom user model with email as username
 - [x] Registration endpoint working
 - [x] Login endpoint working
@@ -678,6 +701,7 @@ export default {
 - [x] Protected endpoints with JWT auth
 
 ### ⚠️ Google OAuth (Requires Setup)
+
 - [x] Django allauth installed
 - [x] Google provider configured
 - [x] Settings configured
@@ -728,18 +752,21 @@ curl -X POST http://localhost:8000/api/auth/login/ \
 
 ## 🎯 Summary
 
-### Current Status:
+### Current Status
+
 ✅ **Email/Password Authentication**: Fully functional  
 ⚠️ **Google OAuth**: Configured but needs Google Cloud setup
 
-### To Enable Google OAuth:
+### To Enable Google OAuth
+
 1. Create Google Cloud project
 2. Get OAuth credentials
 3. Update `.env` with credentials
 4. Configure SocialApp in Django
 5. Test the flow
 
-### All Ready for Production:
+### All Ready for Production
+
 - JWT-based authentication
 - Token refresh mechanism
 - CORS configured

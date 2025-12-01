@@ -1,6 +1,6 @@
 # ReplyCompass# ReplyCompass
 
-
+docker compose exec web python manage.py createsuperuser
 
 > Django-based web application with advanced Role-Based Access Control (RBAC) systemA Django-based web application with comprehensive Role-Based Access Control (RBAC) system.
 

@@ -12,7 +12,19 @@ def assign_default_role(sender, instance, created, **kwargs):
     if created:
         from apps.rbac.models import Role, UserRole
         
-        # Get default role
+        # For superusers, assign admin role
+        if instance.is_superuser:
+            admin_role = Role.objects.filter(slug='admin', is_active=True).first()
+            if admin_role:
+                UserRole.objects.create(
+                    user=instance,
+                    role=admin_role,
+                    is_primary=True,
+                    is_active=True
+                )
+                return
+        
+        # Get default role for regular users
         default_role = Role.objects.filter(is_default=True, is_active=True).first()
         
         if default_role:
