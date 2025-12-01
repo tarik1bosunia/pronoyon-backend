@@ -290,6 +290,7 @@ REST_AUTH = {
     'JWT_AUTH_COOKIE': 'auth-token',
     'JWT_AUTH_REFRESH_COOKIE': 'refresh-token',
     'REGISTER_SERIALIZER': 'apps.accounts.serializers.CustomRegisterSerializer',
+    'USER_DETAILS_SERIALIZER': 'apps.accounts.serializers.UserDetailsSerializer',
 }
 
 # =============================================================================

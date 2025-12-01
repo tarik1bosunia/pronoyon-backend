@@ -9,6 +9,83 @@ from django.db import IntegrityError
 User = get_user_model()
 
 
+class UserRoleSerializer(serializers.Serializer):
+    """Serializer for user role assignment"""
+    id = serializers.IntegerField()
+    role = serializers.SerializerMethodField()
+    is_primary = serializers.BooleanField()
+    is_active = serializers.BooleanField()
+    expires_at = serializers.DateTimeField(required=False, allow_null=True)
+    assigned_at = serializers.DateTimeField()
+    
+    def get_role(self, obj):
+        """Return role details"""
+        return {
+            'id': obj.role.id,
+            'name': obj.role.name,
+            'slug': obj.role.slug,
+            'level': obj.role.level,
+            'role_type': obj.role.role_type,
+            'description': obj.role.description,
+        }
+
+
+class PermissionSerializer(serializers.Serializer):
+    """Serializer for permissions"""
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    codename = serializers.CharField()
+    category = serializers.CharField()
+    description = serializers.CharField()
+    is_active = serializers.BooleanField()
+
+
+class UserDetailsSerializer(serializers.ModelSerializer):
+    """
+    Custom user serializer that includes RBAC data (roles and permissions)
+    """
+    roles = serializers.SerializerMethodField()
+    permissions = serializers.SerializerMethodField()
+    primary_role = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'email',
+            'first_name',
+            'last_name',
+            'roles',
+            'permissions',
+            'primary_role',
+        )
+        read_only_fields = ('email',)
+    
+    def get_roles(self, obj):
+        """Get all active user roles"""
+        user_roles = obj.get_active_roles()
+        return UserRoleSerializer(user_roles, many=True).data
+    
+    def get_permissions(self, obj):
+        """Get all user permissions from roles"""
+        permissions = obj.get_all_permissions()
+        return PermissionSerializer(permissions, many=True).data
+    
+    def get_primary_role(self, obj):
+        """Get user's primary role"""
+        primary_role = obj.get_primary_role()
+        if primary_role:
+            return {
+                'id': primary_role.id,
+                'name': primary_role.name,
+                'slug': primary_role.slug,
+                'level': primary_role.level,
+                'role_type': primary_role.role_type,
+                'description': primary_role.description,
+            }
+        return None
+
+
 class CustomRegisterSerializer(RegisterSerializer):
     """
     Custom registration serializer that removes username field

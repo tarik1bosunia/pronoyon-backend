@@ -80,13 +80,12 @@ class GoogleLoginView(GenericAPIView):
         # 4. Generate JWT Tokens
         refresh = RefreshToken.for_user(user)
         
+        # Serialize user with RBAC data
+        from .serializers import UserDetailsSerializer
+        user_data = UserDetailsSerializer(user).data
+        
         return Response({
-            'user': {
-                'id': user.id,
-                'email': user.email,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-            },
+            'user': user_data,
             'access': str(refresh.access_token),
             'refresh': str(refresh),
         }, status=status.HTTP_200_OK)
