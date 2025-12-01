@@ -15,6 +15,8 @@ class CustomRegisterSerializer(RegisterSerializer):
     since we use email as the unique identifier.
     """
     username = None  # Remove username field
+    first_name = serializers.CharField(required=False, max_length=150)
+    last_name = serializers.CharField(required=False, max_length=150)
     
     def validate_email(self, email):
         """
@@ -37,6 +39,8 @@ class CustomRegisterSerializer(RegisterSerializer):
         return {
             'email': self.validated_data.get('email', ''), # type: ignore
             'password1': self.validated_data.get('password1', ''), # type: ignore
+            'first_name': self.validated_data.get('first_name', ''), # type: ignore
+            'last_name': self.validated_data.get('last_name', ''), # type: ignore
         }
     
     def save(self, request):
@@ -54,3 +58,11 @@ class CustomRegisterSerializer(RegisterSerializer):
             raise serializers.ValidationError(
                 'An error occurred while creating the user. Please try again.'
             )
+
+
+
+# apps/authentication/serializers.py
+from rest_framework import serializers
+
+class GoogleLoginSerializer(serializers.Serializer):
+    auth_token = serializers.CharField(required=True)

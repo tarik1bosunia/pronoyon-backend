@@ -164,18 +164,26 @@ Body: {
 ### Google OAuth (⚠️ Needs Setup)
 
 ```bash
-# Google Login URL (Frontend redirects here)
-GET /api/auth/google/login/
+# Exchange a Google OAuth access token for JWTs
+POST /api/auth/google/
+Body: {
+    "auth_token": "google-oauth-access-token"
+}
 
-# Google Callback (Google redirects here after auth)
-GET /api/auth/google/callback/?code={auth-code}
-
-# Connect Google Account (for logged-in users)
-GET /api/auth/google/connect/
-
-# Disconnect Google Account
-POST /api/auth/google/disconnect/
+Response:
+{
+  "access": "jwt-access-token",
+  "refresh": "jwt-refresh-token",
+  "user": {
+      "id": 1,
+      "email": "user@example.com",
+      "first_name": "Google",
+      "last_name": "User"
+  }
+}
 ```
+
+> ℹ️ Generate `auth_token` on the frontend using `@react-oauth/google` (or Google Identity Services). Send the `access_token` returned by Google to this endpoint.
 
 ---
 
@@ -228,28 +236,23 @@ exit()
    - Developer contact: your-email@example.com
    - Add scopes: `email`, `profile`, `openid`
 
-6. **Add Authorized Redirect URIs**
-   ```
-   Development:
-   http://localhost:8000/api/auth/google/callback/
-   http://127.0.0.1:8000/api/auth/google/callback/
-   http://localhost:3000/auth/google/callback  (if frontend handles)
+6. **Add Authorized JavaScript Origins** (required for the popup/token flow)
+  ```
+  Development:
+  http://localhost:3000
+  http://localhost:8000  # Optional API origin if you open the popup from backend domain
    
-   Production:
-   https://yourdomain.com/api/auth/google/callback/
-   https://api.yourdomain.com/api/auth/google/callback/
-   ```
+  Production:
+  https://yourdomain.com
+  https://app.yourdomain.com (if you have multiple frontends)
+  ```
 
-7. **Add Authorized JavaScript Origins**
-   ```
-   Development:
-   http://localhost:8000
-   http://localhost:3000
-   
-   Production:
-   https://yourdomain.com
-   https://api.yourdomain.com
-   ```
+7. **(Optional) Add Authorized Redirect URIs**
+  - Only needed if you keep a fallback redirect-based flow.
+  ```
+  http://localhost:3000/auth/google/callback
+  https://yourdomain.com/auth/google/callback
+  ```
 
 8. **Copy Credentials**
    - Client ID: `xxxxx.apps.googleusercontent.com`
@@ -260,6 +263,9 @@ exit()
 # Edit .env or .env.docker
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-client-secret
+
+# Frontend .env.local (Next.js)
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 ```
 
 #### Step 4: Configure Social App in Django Admin
@@ -315,17 +321,17 @@ exit()
 
 #### Step 5: Update URLs (if needed)
 
-The URLs should already be included, but verify:
+Ensure the authentication routes expose JWT refresh and Google login:
 
 ```python
 # config/urls.py
+from rest_framework_simplejwt.views import TokenRefreshView
+
 urlpatterns = [
-    # Authentication (includes social auth)
-    path('api/auth/', include('dj_rest_auth.urls')),
-    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
-    
-    # Add social auth URLs explicitly if needed
-    path('api/auth/', include('allauth.urls')),  # Add this if not present
+  path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+  path('api/auth/', include('apps.accounts.urls')),  # /api/auth/google/
+  path('api/auth/', include('dj_rest_auth.urls')),
+  path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
 ]
 ```
 
@@ -375,37 +381,37 @@ curl -X POST http://localhost:8000/api/auth/login/ \
 
 **Frontend Flow:**
 ```javascript
-// 1. User clicks "Login with Google" button
-// 2. Redirect to Google OAuth URL
-window.location.href = 'http://localhost:8000/api/auth/google/login/';
+import { useGoogleLogin } from '@react-oauth/google';
 
-// 3. User authenticates with Google
-// 4. Google redirects back to: /api/auth/google/callback/?code=xxx
-// 5. Backend exchanges code for tokens
-// 6. Frontend receives JWT tokens
+const loginWithGoogle = useGoogleLogin({
+  onSuccess: async (tokenResponse) => {
+    const res = await fetch('http://localhost:8000/api/auth/google/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ auth_token: tokenResponse.access_token })
+    });
 
-// Or use popup flow:
-const popup = window.open(
-  'http://localhost:8000/api/auth/google/login/',
-  'Google Login',
-  'width=600,height=700'
-);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Google login failed');
 
-// Listen for message from popup
-window.addEventListener('message', (event) => {
-  if (event.origin === 'http://localhost:8000') {
-    const { access, refresh, user } = event.data;
-    // Store tokens and redirect user
-  }
+    localStorage.setItem('access_token', data.access);
+    localStorage.setItem('refresh_token', data.refresh);
+  },
+  onError: () => console.error('Google popup closed or failed'),
 });
+
+// Trigger popup
+loginWithGoogle();
 ```
 
 **Direct API Test:**
 ```bash
-# This requires a browser since Google uses OAuth2 flow
-# Open in browser: http://localhost:8000/api/auth/google/login/
-
-# After Google redirects back, you'll get tokens
+# Use a valid Google OAuth access token obtained via Google Identity Services
+curl -X POST http://localhost:8000/api/auth/google/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "auth_token": "ya29.a0AfH6SMB..."
+  }'
 ```
 
 ---
@@ -454,26 +460,21 @@ User                    Frontend                Backend
  |<-- Response ------------|                       |
 ```
 
-### Google OAuth Flow
+### Google OAuth Flow (Token Exchange)
 ```
-User                Frontend                Backend              Google
- |                     |                       |                    |
- |-- Click "Google" ->|                       |                    |
- |                     |-- Redirect ---------->|                    |
- |                     |                       |-- Redirect ------->|
- |                     |                       |                    |
- |<--------------------- Login with Google -----------------------|
- |                     |                       |                    |
- |--------------------------------- Authorize --------------------->|
- |                     |                       |<-- Auth code ------|
- |                     |<-- Redirect callback -|                    |
- |                     |                       |-- Exchange code -->|
- |                     |                       |<-- User info ------|
- |                     |                       |                    |
- |                     |                       |-- Create/get user  |
- |                     |                       |-- Generate JWT     |
- |                     |<-- {access, refresh}--|                    |
- |<-- Store tokens ----|                       |                    |
+User                Frontend                Google                Backend
+ |                     |                       |                       |
+ |-- Click "Google" ->|                       |                       |
+ |                     |-- Popup/login ------->|                       |
+ |                     |<-- access_token ------|                       |
+ |                     |                       |                       |
+ |                     |-- POST /auth/google ----------------------->|
+ |                     |    { auth_token }    |                       |
+ |                     |                       |-- Validate token -->|
+ |                     |                       |<-- Profile data -----|
+ |                     |                       |                       |
+ |                     |<-- {access, refresh}------------------------|
+ |<-- Store tokens ----|                       |                       |
 ```
 
 ---
@@ -483,6 +484,8 @@ User                Frontend                Backend              Google
 ### React Example
 
 ```jsx
+import { useGoogleLogin } from '@react-oauth/google';
+
 // Login with Email/Password
 const loginWithEmail = async (email, password) => {
   try {
@@ -493,15 +496,11 @@ const loginWithEmail = async (email, password) => {
       },
       body: JSON.stringify({ email, password }),
     });
-    
     const data = await response.json();
     
     if (response.ok) {
-      // Store tokens
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
-      
-      // Redirect to dashboard
       window.location.href = '/dashboard';
     }
   } catch (error) {
@@ -509,16 +508,27 @@ const loginWithEmail = async (email, password) => {
   }
 };
 
-// Login with Google
-const loginWithGoogle = () => {
-  // Redirect to Google OAuth
-  window.location.href = 'http://localhost:8000/api/auth/google/login/';
-};
-
-// Component
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const res = await fetch('http://localhost:8000/api/auth/google/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ auth_token: tokenResponse.access_token }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || 'Google login failed');
+      }
+      localStorage.setItem('access_token', data.access);
+      localStorage.setItem('refresh_token', data.refresh);
+      window.location.href = '/dashboard';
+    },
+    onError: () => console.error('Google login cancelled'),
+  });
   
   return (
     <div>
@@ -547,7 +557,7 @@ function LoginPage() {
       <hr />
       
       {/* Google OAuth Button */}
-      <button onClick={loginWithGoogle}>
+      <button onClick={() => loginWithGoogle()}>
         Login with Google
       </button>
     </div>
@@ -623,7 +633,30 @@ export default {
     },
     
     loginWithGoogle() {
-      window.location.href = 'http://localhost:8000/api/auth/google/login/';
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        scope: 'openid email profile',
+        callback: async (tokenResponse) => {
+          const response = await fetch('http://localhost:8000/api/auth/google/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ auth_token: tokenResponse.access_token }),
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            localStorage.setItem('access_token', data.access);
+            localStorage.setItem('refresh_token', data.refresh);
+            this.$router.push('/dashboard');
+          } else {
+            console.error(data.detail || 'Google login failed');
+          }
+        },
+      });
+
+      client.requestAccessToken();
     },
   },
 };
@@ -685,8 +718,10 @@ curl -X POST http://localhost:8000/api/auth/login/ \
   -H "Content-Type: application/json" \
   -d '{"email": "admin@example.com", "password": "Admin123!"}'
 
-# 6. Test Google OAuth (in browser)
-# Open: http://localhost:8000/api/auth/google/login/
+# 6. Test Google OAuth (requires Google access token)
+# curl -X POST http://localhost:8000/api/auth/google/ \
+#   -H "Content-Type: application/json" \
+#   -d '{"auth_token": "ya29.a0AfH6SMB..."}'
 ```
 
 ---
@@ -714,5 +749,5 @@ curl -X POST http://localhost:8000/api/auth/login/ \
 
 ---
 
-**Last Updated**: November 14, 2025  
+**Last Updated**: December 1, 2025  
 **Status**: Email/Password ✅ | Google OAuth ⚠️ (Setup Required)

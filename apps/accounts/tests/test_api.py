@@ -8,6 +8,7 @@ API Tests for authentication endpoints
 # pyright: reportArgumentType=false
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any, cast
+from unittest.mock import patch, MagicMock
 
 from django.test import TestCase
 from django.urls import reverse
@@ -213,4 +214,46 @@ class AuthenticationAPITestCase(TestCase):
         url = reverse('rest_user_details')
         response = self.client.get(url)
         
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class GoogleAuthenticationAPITestCase(TestCase):
+    """Test Google OAuth login endpoint"""
+
+    client: APIClient
+
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('google-login')
+
+    @patch('apps.accounts.google.requests.get')
+    def test_google_login_creates_user_and_returns_tokens(self, mock_get):
+        """Google login should create user and return JWT pair"""
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = {
+            'email': 'googleuser@example.com',
+            'given_name': 'Google',
+            'family_name': 'User',
+            'sub': 'google-sub-id',
+            'email_verified': True,
+        }
+        mock_get.return_value = mock_response
+
+        response = self.client.post(self.url, {'auth_token': 'fake-token'}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', response.data)
+        self.assertIn('refresh', response.data)
+        self.assertTrue(User.objects.filter(email='googleuser@example.com').exists())
+
+    @patch('apps.accounts.google.requests.get')
+    def test_google_login_invalid_token(self, mock_get):
+        """Invalid Google token should return unauthorized response"""
+        mock_response = MagicMock()
+        mock_response.ok = False
+        mock_get.return_value = mock_response
+
+        response = self.client.post(self.url, {'auth_token': 'bad-token'}, format='json')
+
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
