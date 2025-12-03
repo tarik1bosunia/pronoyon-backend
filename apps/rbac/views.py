@@ -242,11 +242,11 @@ class UserViewSet(viewsets.ModelViewSet):
         """Get users with filtering"""
         queryset = super().get_queryset()
         
-        # Filter by role
-        role_type = self.request.query_params.get('role')
-        if role_type:
+        # Filter by role (supports role_type or slug)
+        role = self.request.query_params.get('role')
+        if role:
             queryset = queryset.filter(
-                user_roles__role__role_type=role_type,
+                user_roles__role__slug=role,
                 user_roles__is_active=True
             ).distinct()
         
