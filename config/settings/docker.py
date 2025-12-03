@@ -119,6 +119,13 @@ LOGGING['root']['level'] = config('LOG_LEVEL', default='INFO')
 LOGGING['loggers']['django']['level'] = config('DJANGO_LOG_LEVEL', default='INFO')
 LOGGING['loggers']['apps']['level'] = config('LOG_LEVEL', default='INFO')
 
+# Silence autoreload debug messages
+LOGGING['loggers']['django.utils.autoreload'] = {
+    'level': 'INFO',
+    'handlers': ['console'],
+    'propagate': False,
+}
+
 # Development-specific apps (optional in Docker)
 if DEBUG:
     INSTALLED_APPS += [

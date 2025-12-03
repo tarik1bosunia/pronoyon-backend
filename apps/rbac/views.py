@@ -1,18 +1,22 @@
 """
 RBAC API Views
 """
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
 
 from .models import Permission, Role, UserRole, RoleHistory
 from .serializers import (
     PermissionSerializer, RoleSerializer, UserRoleSerializer,
     RoleHistorySerializer, UserPermissionsSerializer
 )
+from .serializers.user_serializer import UserWithRolesSerializer, UserCreateUpdateSerializer
 from .permissions import HasPermission, MinimumRoleLevel
+
+User = get_user_model()
 
 
 class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -213,4 +217,106 @@ class CurrentUserRBACViewSet(viewsets.ViewSet):
         return Response({
             'role': role_name,
             'has_role': has_role
+        })
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing users (admin only)
+    """
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated, MinimumRoleLevel]
+    minimum_role_level = 60  # Manager level
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['email', 'first_name', 'last_name']
+    ordering_fields = ['date_joined', 'email', 'first_name']
+    ordering = ['-date_joined']
+    
+    def get_serializer_class(self):
+        """Use different serializers for different actions"""
+        if self.action in ['create', 'update', 'partial_update']:
+            return UserCreateUpdateSerializer
+        return UserWithRolesSerializer
+    
+    def get_queryset(self):
+        """Get users with filtering"""
+        queryset = super().get_queryset()
+        
+        # Filter by role
+        role_type = self.request.query_params.get('role')
+        if role_type:
+            queryset = queryset.filter(
+                user_roles__role__role_type=role_type,
+                user_roles__is_active=True
+            ).distinct()
+        
+        # Filter by status
+        is_active = self.request.query_params.get('is_active')
+        if is_active is not None:
+            queryset = queryset.filter(is_active=is_active.lower() == 'true')
+        
+        return queryset.prefetch_related('user_roles__role__permissions')
+    
+    @action(detail=True, methods=['post'])
+    def activate(self, request, pk=None):
+        """Activate a user"""
+        user = self.get_object()
+        user.is_active = True
+        user.save()
+        return Response({'message': f'User {user.email} activated'})
+    
+    @action(detail=True, methods=['post'])
+    def deactivate(self, request, pk=None):
+        """Deactivate a user"""
+        user = self.get_object()
+        user.is_active = False
+        user.save()
+        return Response({'message': f'User {user.email} deactivated'})
+    
+    def destroy(self, request, *args, **kwargs):
+        """Delete a user"""
+        try:
+            user = self.get_object()
+            email = user.email
+            
+            # Delete related records first
+            UserRole.objects.filter(user=user).delete()
+            RoleHistory.objects.filter(user=user).delete()
+            
+            user.delete()
+            return Response(
+                {'message': f'User {email} deleted successfully'},
+                status=status.HTTP_200_OK
+            )
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'User not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {'error': f'Failed to delete user: {str(e)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    @action(detail=False, methods=['get'])
+    def stats(self, request):
+        """Get user statistics"""
+        total_users = User.objects.count()
+        active_users = User.objects.filter(is_active=True).count()
+        
+        # Count users by role
+        from django.db.models import Count
+        role_counts = UserRole.objects.filter(
+            is_active=True,
+            is_primary=True
+        ).values('role__role_type').annotate(count=Count('id'))
+        
+        role_stats = {item['role__role_type']: item['count'] for item in role_counts}
+        
+        return Response({
+            'total_users': total_users,
+            'active_users': active_users,
+            'inactive_users': total_users - active_users,
+            'role_distribution': role_stats
         })

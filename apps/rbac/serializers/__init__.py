@@ -2,7 +2,7 @@
 RBAC Serializers
 """
 from rest_framework import serializers
-from .models import Permission, Role, UserRole, RoleHistory
+from ..models import Permission, Role, UserRole, RoleHistory
 
 
 class PermissionSerializer(serializers.ModelSerializer):
