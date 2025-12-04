@@ -47,6 +47,9 @@ urlpatterns = [
     
     # RBAC API
     path('api/rbac/', include('apps.rbac.urls')),
+    
+    # Payments & Wallet API
+    path('api/payments/', include('apps.payments.urls')),
 ]
 
 # Serve media files in development

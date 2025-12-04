@@ -528,4 +528,14 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 # Content Security
 X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# =============================================================================
+# BKASH PAYMENT GATEWAY SETTINGS
+# =============================================================================
+BKASH_APP_KEY = config('BKASH_APP_KEY', default='')
+BKASH_APP_SECRET = config('BKASH_APP_SECRET', default='')
+BKASH_USERNAME = config('BKASH_USERNAME', default='')
+BKASH_PASSWORD = config('BKASH_PASSWORD', default='')
+BKASH_SANDBOX = config('BKASH_SANDBOX', default=True, cast=bool)
+BKASH_CALLBACK_URL = config('BKASH_CALLBACK_URL', default='http://localhost:3000/payment/callback')
 SECURE_BROWSER_XSS_FILTER = True
