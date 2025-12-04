@@ -7,6 +7,7 @@ from .views import (
     PermissionViewSet, RoleViewSet, UserRoleViewSet,
     RoleHistoryViewSet, CurrentUserRBACViewSet, UserViewSet
 )
+from .admin_views import recent_activities, activity_summary
 
 app_name = 'rbac'
 
@@ -20,4 +21,7 @@ router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = [
     path('', include(router.urls)),
+    # Admin activity endpoints
+    path('activities/recent/', recent_activities, name='recent-activities'),
+    path('activities/summary/', activity_summary, name='activity-summary'),
 ]
