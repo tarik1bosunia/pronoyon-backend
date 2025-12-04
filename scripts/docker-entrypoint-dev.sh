@@ -27,4 +27,8 @@ EOF
 # Seed RBAC
 python manage.py seed_rbac
 
+# Seed payment data (sample users and transactions)
+echo "Seeding payment data..."
+python manage.py seed_payment_data
+
 exec "$@"

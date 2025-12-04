@@ -58,6 +58,8 @@ services:
       python manage.py seed_rbac || echo 'RBAC already seeded';
       python manage.py seed_question_bank || echo 'Question Bank already seeded';
       python manage.py create_superuser || echo 'Superuser exists';
+      echo 'Seeding payment data...';
+      python manage.py seed_payment_data || echo 'Payment data already seeded';
       if [ \"$${DEBUG:-False}\" = \"True\" ]; then
         echo '🔥 Starting in DEVELOPMENT mode...';
         python manage.py runserver 0.0.0.0:8000;

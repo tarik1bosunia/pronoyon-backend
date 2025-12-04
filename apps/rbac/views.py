@@ -302,21 +302,55 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def stats(self, request):
         """Get user statistics"""
+        from django.db.models import Count
+        from django.utils import timezone
+        from datetime import timedelta
+        
         total_users = User.objects.count()
         active_users = User.objects.filter(is_active=True).count()
         
-        # Count users by role
-        from django.db.models import Count
+        # Calculate new users this week
+        week_ago = timezone.now() - timedelta(days=7)
+        two_weeks_ago = timezone.now() - timedelta(days=14)
+        
+        new_users_this_week = User.objects.filter(date_joined__gte=week_ago).count()
+        new_users_last_week = User.objects.filter(
+            date_joined__gte=two_weeks_ago,
+            date_joined__lt=week_ago
+        ).count()
+        
+        # Calculate percentage change
+        if new_users_last_week > 0:
+            new_users_percentage = ((new_users_this_week - new_users_last_week) / new_users_last_week) * 100
+        else:
+            new_users_percentage = 100.0 if new_users_this_week > 0 else 0.0
+        
+        # Count users by role with detailed information
+        role_distribution = []
         role_counts = UserRole.objects.filter(
             is_active=True,
             is_primary=True
-        ).values('role__role_type').annotate(count=Count('id'))
+        ).values(
+            'role__name',
+            'role__slug',
+            'role__role_type'
+        ).annotate(count=Count('id'))
         
-        role_stats = {item['role__role_type']: item['count'] for item in role_counts}
+        for role_data in role_counts:
+            percentage = (role_data['count'] / total_users * 100) if total_users > 0 else 0
+            role_distribution.append({
+                'role_name': role_data['role__name'],
+                'role_slug': role_data['role__slug'],
+                'role_type': role_data['role__role_type'],
+                'count': role_data['count'],
+                'percentage': round(percentage, 2)
+            })
         
         return Response({
             'total_users': total_users,
             'active_users': active_users,
             'inactive_users': total_users - active_users,
-            'role_distribution': role_stats
+            'new_users_this_week': new_users_this_week,
+            'new_users_percentage': round(new_users_percentage, 2),
+            'role_distribution': role_distribution
         })
