@@ -4,6 +4,7 @@ Usage: python manage.py seed_rbac
 """
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.db.utils import ProgrammingError, OperationalError
 from apps.rbac.models import Permission, Role
 
 
@@ -11,19 +12,32 @@ class Command(BaseCommand):
     help = 'Seed RBAC roles and permissions for ReplyCompass'
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS('Starting RBAC seeding...'))
-        
-        with transaction.atomic():
-            # Create permissions
-            self.create_permissions()
+        try:
+            self.stdout.write(self.style.SUCCESS('Starting RBAC seeding...'))
             
-            # Create roles
-            self.create_roles()
+            with transaction.atomic():
+                # Create permissions
+                self.create_permissions()
+                
+                # Create roles
+                self.create_roles()
+                
+                # Assign permissions to roles
+                self.assign_permissions()
             
-            # Assign permissions to roles
-            self.assign_permissions()
-        
-        self.stdout.write(self.style.SUCCESS('RBAC seeding completed successfully!'))
+            self.stdout.write(self.style.SUCCESS('RBAC seeding completed successfully!'))
+        except (ProgrammingError, OperationalError) as e:
+            self.stdout.write(
+                self.style.WARNING(
+                    f'RBAC seeding skipped - database tables may not exist yet: {str(e)}'
+                )
+            )
+            return
+        except Exception as e:
+            self.stdout.write(
+                self.style.ERROR(f'Error during RBAC seeding: {str(e)}')
+            )
+            raise
     
     def create_permissions(self):
         """Create all permissions"""

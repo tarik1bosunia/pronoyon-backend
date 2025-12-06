@@ -1,0 +1,1184 @@
+{
+	"info": {
+		"_postman_id": "question-bank-api-collection",
+		"name": "Pronoyon Question Bank API",
+		"description": "Complete API collection for Question Bank Management System with Class → Subject → Chapter → Topic hierarchy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Classes",
+			"item": [
+				{
+					"name": "List All Classes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/classes/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "classes", ""]
+						}
+					}
+				},
+				{
+					"name": "Search Classes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/classes/?search=Class 6",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "classes", ""],
+							"query": [
+								{
+									"key": "search",
+									"value": "Class 6"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Class",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Class 6\",\n    \"code\": \"CLS6\",\n    \"description\": \"Sixth grade curriculum\",\n    \"order\": 6\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/classes/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "classes", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Class Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/classes/{{class_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "classes", "{{class_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Class",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Class 6 (Updated)\",\n    \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/classes/{{class_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "classes", "{{class_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete Class",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/classes/{{class_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "classes", "{{class_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Reorder Classes",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"class_orders\": [\n        {\"id\": \"class-uuid-1\", \"order\": 1},\n        {\"id\": \"class-uuid-2\", \"order\": 2},\n        {\"id\": \"class-uuid-3\", \"order\": 3}\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/classes/reorder/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "classes", "reorder", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Class With Subjects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/classes/{{class_id}}/with_subjects/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "classes", "{{class_id}}", "with_subjects", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Subjects",
+			"item": [
+				{
+					"name": "List All Subjects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/subjects/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "subjects", ""]
+						}
+					}
+				},
+				{
+					"name": "List Subjects by Class",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/subjects/?class_id={{class_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "subjects", ""],
+							"query": [
+								{
+									"key": "class_id",
+									"value": "{{class_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Subjects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/subjects/?search=Math",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "subjects", ""],
+							"query": [
+								{
+									"key": "search",
+									"value": "Math"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Subject",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"class_level\": \"{{class_id}}\",\n    \"name\": \"Mathematics\",\n    \"code\": \"MATH6\",\n    \"description\": \"Basic mathematics for class 6\",\n    \"order\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/subjects/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "subjects", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Subject Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/subjects/{{subject_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "subjects", "{{subject_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Subject",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Mathematics (Advanced)\",\n    \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/subjects/{{subject_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "subjects", "{{subject_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete Subject",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/subjects/{{subject_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "subjects", "{{subject_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Reorder Subjects",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"class_id\": \"{{class_id}}\",\n    \"subject_orders\": [\n        {\"id\": \"subject-uuid-1\", \"order\": 1},\n        {\"id\": \"subject-uuid-2\", \"order\": 2}\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/subjects/reorder/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "subjects", "reorder", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Chapters",
+			"item": [
+				{
+					"name": "List All Chapters",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/chapters/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "chapters", ""]
+						}
+					}
+				},
+				{
+					"name": "List Chapters by Subject",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/chapters/?subject_id={{subject_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "chapters", ""],
+							"query": [
+								{
+									"key": "subject_id",
+									"value": "{{subject_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "List Chapters by Class",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/chapters/?class_id={{class_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "chapters", ""],
+							"query": [
+								{
+									"key": "class_id",
+									"value": "{{class_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Chapters",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/chapters/?search=Algebra",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "chapters", ""],
+							"query": [
+								{
+									"key": "search",
+									"value": "Algebra"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Chapter",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"subject\": \"{{subject_id}}\",\n    \"name\": \"Algebra\",\n    \"description\": \"Introduction to algebraic expressions\",\n    \"order\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/chapters/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "chapters", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Chapter Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/chapters/{{chapter_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "chapters", "{{chapter_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Chapter",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Algebra (Updated)\",\n    \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/chapters/{{chapter_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "chapters", "{{chapter_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete Chapter",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/chapters/{{chapter_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "chapters", "{{chapter_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Reorder Chapters",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"subject_id\": \"{{subject_id}}\",\n    \"chapter_orders\": [\n        {\"id\": \"chapter-uuid-1\", \"order\": 1},\n        {\"id\": \"chapter-uuid-2\", \"order\": 2}\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/chapters/reorder/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "chapters", "reorder", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Topics",
+			"item": [
+				{
+					"name": "List All Topics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/topics/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "topics", ""]
+						}
+					}
+				},
+				{
+					"name": "List Topics by Chapter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/topics/?chapter_id={{chapter_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "topics", ""],
+							"query": [
+								{
+									"key": "chapter_id",
+									"value": "{{chapter_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "List Topics by Subject",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/topics/?subject_id={{subject_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "topics", ""],
+							"query": [
+								{
+									"key": "subject_id",
+									"value": "{{subject_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "List Topics by Class",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/topics/?class_id={{class_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "topics", ""],
+							"query": [
+								{
+									"key": "class_id",
+									"value": "{{class_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Topics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/topics/?search=Linear Equations",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "topics", ""],
+							"query": [
+								{
+									"key": "search",
+									"value": "Linear Equations"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Topic",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"chapter\": \"{{chapter_id}}\",\n    \"name\": \"Linear Equations\",\n    \"description\": \"Solving linear equations\",\n    \"order\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/topics/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "topics", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Topic Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/topics/{{topic_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "topics", "{{topic_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Topic",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Linear Equations (Advanced)\",\n    \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/topics/{{topic_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "topics", "{{topic_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete Topic",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/topics/{{topic_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "topics", "{{topic_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Reorder Topics",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"chapter_id\": \"{{chapter_id}}\",\n    \"topic_orders\": [\n        {\"id\": \"topic-uuid-1\", \"order\": 1},\n        {\"id\": \"topic-uuid-2\", \"order\": 2}\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/topics/reorder/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "topics", "reorder", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Questions",
+			"item": [
+				{
+					"name": "List All Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", ""]
+						}
+					}
+				},
+				{
+					"name": "List Questions by Subject",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/?subject_id={{subject_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", ""],
+							"query": [
+								{
+									"key": "subject_id",
+									"value": "{{subject_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "List Questions by Topic",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/?topic_id={{topic_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", ""],
+							"query": [
+								{
+									"key": "topic_id",
+									"value": "{{topic_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "List Questions by Difficulty",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/?difficulty=medium",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", ""],
+							"query": [
+								{
+									"key": "difficulty",
+									"value": "medium"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "List Verified Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/?is_verified=true",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", ""],
+							"query": [
+								{
+									"key": "is_verified",
+									"value": "true"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/?search=algebra",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", ""],
+							"query": [
+								{
+									"key": "search",
+									"value": "algebra"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create MCQ Question (Simple)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"mcq\",\n    \"mcq_subtype\": \"simple\",\n    \"question_text\": \"What is 2 + 2?\",\n    \"marks\": 1,\n    \"difficulty\": \"easy\",\n    \"subject_id\": \"{{subject_id}}\",\n    \"topic_ids\": [\"{{topic_id}}\"],\n    \"tags\": [\"basic\", \"addition\"],\n    \"solution\": \"The answer is 4\",\n    \"hints\": [\"Think about basic addition\"],\n    \"is_public\": true,\n    \"options\": [\n        {\n            \"option_label\": \"A\",\n            \"option_text\": \"3\",\n            \"is_correct\": false\n        },\n        {\n            \"option_label\": \"B\",\n            \"option_text\": \"4\",\n            \"is_correct\": true\n        },\n        {\n            \"option_label\": \"C\",\n            \"option_text\": \"5\",\n            \"is_correct\": false\n        },\n        {\n            \"option_label\": \"D\",\n            \"option_text\": \"6\",\n            \"is_correct\": false\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", ""]
+						}
+					}
+				},
+				{
+					"name": "Create Creative Question",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"cq\",\n    \"question_text\": \"Read the following passage and answer the questions below:\\n\\nPassage content here...\",\n    \"marks\": 10,\n    \"difficulty\": \"medium\",\n    \"subject_id\": \"{{subject_id}}\",\n    \"topic_ids\": [\"{{topic_id}}\"],\n    \"tags\": [\"comprehension\"],\n    \"solution\": \"Complete solution guide\",\n    \"hints\": [\"Read the passage carefully\"],\n    \"is_public\": true,\n    \"sub_questions\": [\n        {\n            \"label\": \"a\",\n            \"sub_question_text\": \"What is the main idea of the passage?\",\n            \"marks\": 2,\n            \"answer\": \"The main idea is...\"\n        },\n        {\n            \"label\": \"b\",\n            \"sub_question_text\": \"Explain the significance of...\",\n            \"marks\": 3,\n            \"answer\": \"The significance is...\"\n        },\n        {\n            \"label\": \"c\",\n            \"sub_question_text\": \"Write a summary of the passage.\",\n            \"marks\": 5,\n            \"answer\": \"Summary: ...\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Question Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/{{question_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", "{{question_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Question",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"question_text\": \"Updated question text\",\n    \"difficulty\": \"hard\",\n    \"marks\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/{{question_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", "{{question_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete Question",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/{{question_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", "{{question_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Verify Question",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/{{question_id}}/verify/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", "{{question_id}}", "verify", ""]
+						}
+					}
+				},
+				{
+					"name": "Unverify Question",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/{{question_id}}/unverify/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", "{{question_id}}", "unverify", ""]
+						}
+					}
+				},
+				{
+					"name": "Duplicate Question",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/{{question_id}}/duplicate/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", "{{question_id}}", "duplicate", ""]
+						}
+					}
+				},
+				{
+					"name": "Get My Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/my_questions/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", "my_questions", ""]
+						}
+					}
+				},
+				{
+					"name": "Get MCQ Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/mcq/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", "mcq", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Creative Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/questions/creative/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "questions", "creative", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Drafts",
+			"item": [
+				{
+					"name": "List My Drafts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", ""]
+						}
+					}
+				},
+				{
+					"name": "List Favorite Drafts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/?favorites=true",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", ""],
+							"query": [
+								{
+									"key": "favorites",
+									"value": "true"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Drafts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/?search=exam",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", ""],
+							"query": [
+								{
+									"key": "search",
+									"value": "exam"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Draft",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Mid-term Exam 2025\",\n    \"description\": \"Questions for mid-term examination\",\n    \"is_favorite\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Draft Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", "{{draft_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Draft",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Exam Title\",\n    \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", "{{draft_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete Draft",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", "{{draft_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Add Question to Draft",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"question_id\": \"{{question_id}}\",\n    \"notes\": \"Important question for chapter 1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/add_question/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", "{{draft_id}}", "add_question", ""]
+						}
+					}
+				},
+				{
+					"name": "Add Multiple Questions to Draft",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"question_ids\": [\n        \"question-uuid-1\",\n        \"question-uuid-2\",\n        \"question-uuid-3\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/add_multiple_questions/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", "{{draft_id}}", "add_multiple_questions", ""]
+						}
+					}
+				},
+				{
+					"name": "Remove Question from Draft",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"question_id\": \"{{question_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/remove_question/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", "{{draft_id}}", "remove_question", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Question Notes",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"question_id\": \"{{question_id}}\",\n    \"notes\": \"Updated notes for this question\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/update_question_notes/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", "{{draft_id}}", "update_question_notes", ""]
+						}
+					}
+				},
+				{
+					"name": "Reorder Questions in Draft",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"question_orders\": [\n        {\"question_id\": \"question-uuid-1\", \"order\": 0},\n        {\"question_id\": \"question-uuid-2\", \"order\": 1},\n        {\"question_id\": \"question-uuid-3\", \"order\": 2}\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/reorder_questions/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", "{{draft_id}}", "reorder_questions", ""]
+						}
+					}
+				},
+				{
+					"name": "Toggle Favorite",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/toggle_favorite/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", "{{draft_id}}", "toggle_favorite", ""]
+						}
+					}
+				},
+				{
+					"name": "Clear Draft",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/clear/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "questions", "drafts", "{{draft_id}}", "clear", ""]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "your-jwt-token-here",
+			"type": "string"
+		},
+		{
+			"key": "class_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "subject_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "chapter_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "topic_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "question_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "draft_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

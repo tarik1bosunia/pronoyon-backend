@@ -50,6 +50,9 @@ urlpatterns = [
     
     # Payments & Wallet API
     path('api/payments/', include('apps.payments.urls')),
+    
+    # Questions API
+    path('api/questions/', include('apps.questions.urls')),
 ]
 
 # Serve media files in development

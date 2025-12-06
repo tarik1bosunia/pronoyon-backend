@@ -41,11 +41,11 @@ EOF
 
 # Seed RBAC data if needed
 echo "Seeding RBAC data..."
-python manage.py seed_rbac || echo "RBAC data already seeded or error occurred"
+python manage.py seed_rbac 2>&1 || echo "RBAC seeding skipped or error occurred (tables may not exist yet)"
 
 # Seed Question Bank permissions
 echo "Seeding Question Bank permissions..."
-python manage.py seed_question_bank || echo "Question Bank data already seeded or error occurred"
+python manage.py seed_question_bank 2>&1 || echo "Question Bank seeding skipped or error occurred"
 
 # Create default superuser
 echo "Creating default superuser..."
