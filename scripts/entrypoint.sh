@@ -55,5 +55,9 @@ python manage.py create_superuser || echo "Superuser already exists"
 echo "Seeding payment data..."
 python manage.py seed_payment_data || echo "Payment data already seeded or error occurred"
 
+# Seed question bank data
+echo "Seeding question bank data..."
+python manage.py seed_questions || echo "Question data already seeded or error occurred"
+
 echo "Starting application..."
 exec "$@"

@@ -6,6 +6,7 @@ from .topic_serializers import TopicSerializer, TopicDetailSerializer
 from .question_serializers import (
     QuestionListSerializer,
     QuestionDetailSerializer,
+    FrontendQuestionSerializer,
     MCQQuestionCreateSerializer,
     CQQuestionCreateSerializer,
     MCQOptionSerializer,
@@ -31,6 +32,7 @@ __all__ = [
     'TopicDetailSerializer',
     'QuestionListSerializer',
     'QuestionDetailSerializer',
+    'FrontendQuestionSerializer',
     'MCQQuestionCreateSerializer',
     'CQQuestionCreateSerializer',
     'MCQOptionSerializer',

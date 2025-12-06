@@ -6,6 +6,7 @@ from apps.questions.models import Question
 from apps.questions.serializers import (
     QuestionListSerializer,
     QuestionDetailSerializer,
+    FrontendQuestionSerializer,
     MCQQuestionCreateSerializer,
     CQQuestionCreateSerializer
 )
@@ -58,7 +59,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return queryset
     
     def get_serializer_class(self):
-        if self.action == 'retrieve':
+        # Use frontend-compatible serializer for list view
+        if self.action == 'list':
+            return FrontendQuestionSerializer
+        elif self.action == 'retrieve':
             return QuestionDetailSerializer
         return QuestionListSerializer
     

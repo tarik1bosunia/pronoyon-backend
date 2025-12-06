@@ -142,3 +142,133 @@ class CQQuestionCreateSerializer(serializers.Serializer):
     hints = serializers.ListField(child=serializers.CharField(), required=False, default=list)
     is_public = serializers.BooleanField(default=True)
     sub_questions = serializers.ListField(child=serializers.DictField(), min_length=1)
+
+
+class FrontendMCQOptionSerializer(serializers.Serializer):
+    """Frontend compatible MCQ option serializer"""
+    id = serializers.CharField()
+    text = serializers.CharField(source='option_text')
+    isCorrect = serializers.BooleanField(source='is_correct')
+
+
+class FrontendCQSubQuestionSerializer(serializers.Serializer):
+    """Frontend compatible CQ sub-question serializer"""
+    id = serializers.CharField()
+    label = serializers.CharField()
+    text = serializers.CharField(source='sub_question_text')
+    marks = serializers.DecimalField(max_digits=5, decimal_places=2)
+
+
+class FrontendQuestionSerializer(serializers.ModelSerializer):
+    """Frontend compatible question serializer matching the React Question type"""
+    type = serializers.SerializerMethodField()
+    text = serializers.CharField(source='question_text')
+    stem = serializers.SerializerMethodField()
+    romanStatements = serializers.SerializerMethodField()
+    footer = serializers.SerializerMethodField()
+    board = serializers.CharField(source='subject.class_level.name', default='')
+    year = serializers.SerializerMethodField()
+    subject = serializers.CharField(source='subject.name', default='')
+    chapter = serializers.SerializerMethodField()
+    topic = serializers.SerializerMethodField()
+    school = serializers.SerializerMethodField()
+    schoolYear = serializers.SerializerMethodField()
+    specialTags = serializers.ListField(source='tags', default=list)
+    options = serializers.SerializerMethodField()
+    subQuestions = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Question
+        fields = [
+            'id',
+            'type',
+            'text',
+            'stem',
+            'romanStatements',
+            'footer',
+            'marks',
+            'board',
+            'year',
+            'subject',
+            'chapter',
+            'topic',
+            'school',
+            'schoolYear',
+            'specialTags',
+            'options',
+            'subQuestions'
+        ]
+    
+    def get_type(self, obj):
+        return obj.type.lower()
+    
+    def get_stem(self, obj):
+        """Extract stem for combined MCQ"""
+        if obj.type == Question.MCQ and obj.mcq_subtype == Question.COMBINED:
+            lines = obj.question_text.split('\n')
+            if lines:
+                return lines[0].strip()
+        return None
+    
+    def get_romanStatements(self, obj):
+        """Extract roman numeral statements for combined MCQ"""
+        if obj.type == Question.MCQ and obj.mcq_subtype == Question.COMBINED:
+            import re
+            lines = obj.question_text.split('\n')
+            roman_pattern = re.compile(r'^(i{1,3}|iv|v)\.\s+', re.IGNORECASE)
+            statements = []
+            for line in lines:
+                line = line.strip()
+                if roman_pattern.match(line):
+                    statements.append(roman_pattern.sub('', line))
+            return statements if statements else None
+        return None
+    
+    def get_footer(self, obj):
+        """Extract footer for combined MCQ"""
+        if obj.type == Question.MCQ and obj.mcq_subtype == Question.COMBINED:
+            lines = obj.question_text.split('\n')
+            import re
+            roman_pattern = re.compile(r'^(i{1,3}|iv|v)\.\s+', re.IGNORECASE)
+            found_roman = False
+            for line in lines:
+                line = line.strip()
+                if roman_pattern.match(line):
+                    found_roman = True
+                elif found_roman and line:
+                    return line
+            return 'নিচের কোনটি সঠিক?'
+        return None
+    
+    def get_year(self, obj):
+        # Extract from tags or return empty
+        return ''
+    
+    def get_chapter(self, obj):
+        topics = obj.topics.all()
+        if topics:
+            return topics[0].chapter.name
+        return ''
+    
+    def get_topic(self, obj):
+        topics = obj.topics.all()
+        if topics:
+            return topics[0].name
+        return ''
+    
+    def get_school(self, obj):
+        return ''
+    
+    def get_schoolYear(self, obj):
+        return ''
+    
+    def get_options(self, obj):
+        if obj.type == Question.MCQ:
+            return FrontendMCQOptionSerializer(obj.mcq_options.all().order_by('order'), many=True).data
+        return None
+    
+    def get_subQuestions(self, obj):
+        if obj.type == Question.CQ:
+            return FrontendCQSubQuestionSerializer(obj.cq_sub_questions.all().order_by('order'), many=True).data
+        return None
+
