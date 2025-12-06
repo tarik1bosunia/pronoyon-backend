@@ -1,5 +1,5 @@
 from django.db.models import Count, Prefetch, Q, QuerySet
-from apps.questions.models import Class
+from apps.questions.models import Class, Group, Subject
 
 
 class ClassSelectors:
@@ -27,11 +27,15 @@ class ClassSelectors:
     
     @staticmethod
     def get_classes_with_subjects(*, is_active: bool = True) -> QuerySet[Class]:
-        """Get classes with their subjects"""
+        """Get classes with their subjects and groups"""
         queryset = Class.objects.prefetch_related(
             Prefetch(
+                'groups',
+                queryset=Group.objects.filter(is_active=True) if is_active else Group.objects.all()
+            ),
+            Prefetch(
                 'subjects',
-                queryset=Class.objects.filter(is_active=True) if is_active else Class.objects.all()
+                queryset=Subject.objects.filter(is_active=True) if is_active else Subject.objects.all()
             )
         )
         
@@ -42,9 +46,25 @@ class ClassSelectors:
     
     @staticmethod
     def get_classes_with_subject_count(*, is_active: bool = True) -> QuerySet[Class]:
-        """Get classes with subject count"""
+        """Get classes with subject count and group count"""
         queryset = Class.objects.annotate(
-            subject_count=Count('subjects', filter=Q(subjects__is_active=True))
+            subject_count=Count('subjects', filter=Q(subjects__is_active=True)),
+            group_count=Count('groups', filter=Q(groups__is_active=True))
+        )
+        
+        if is_active is not None:
+            queryset = queryset.filter(is_active=is_active)
+        
+        return queryset.order_by('order', 'name')
+    
+    @staticmethod
+    def get_classes_with_groups(*, is_active: bool = True) -> QuerySet[Class]:
+        """Get classes that have groups enabled with their groups"""
+        queryset = Class.objects.filter(has_groups=True).prefetch_related(
+            Prefetch(
+                'groups',
+                queryset=Group.objects.filter(is_active=True) if is_active else Group.objects.all()
+            )
         )
         
         if is_active is not None:

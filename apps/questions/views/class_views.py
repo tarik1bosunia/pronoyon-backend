@@ -42,9 +42,9 @@ class ClassViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
     
-    def update(self, request, pk=None):
+    def update(self, request, pk=None, partial=False):
         """Update a class"""
-        serializer = ClassSerializer(data=request.data, partial=True)
+        serializer = ClassSerializer(data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         
         class_obj = ClassService.update_class(

@@ -1,4 +1,5 @@
 from .class_serializers import ClassSerializer, ClassDetailSerializer
+from .group_serializers import GroupSerializer, GroupDetailSerializer, GroupMinimalSerializer
 from .subject_serializers import SubjectSerializer, SubjectDetailSerializer
 from .chapter_serializers import ChapterSerializer, ChapterDetailSerializer
 from .topic_serializers import TopicSerializer, TopicDetailSerializer
@@ -19,6 +20,9 @@ from .draft_serializers import (
 __all__ = [
     'ClassSerializer',
     'ClassDetailSerializer',
+    'GroupSerializer',
+    'GroupDetailSerializer',
+    'GroupMinimalSerializer',
     'SubjectSerializer',
     'SubjectDetailSerializer',
     'ChapterSerializer',

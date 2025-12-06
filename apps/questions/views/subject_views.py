@@ -14,13 +14,17 @@ class SubjectViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         class_id = self.request.query_params.get('class_id')
+        group_id = self.request.query_params.get('group_id')
         search = self.request.query_params.get('search')
         
         if search:
             queryset = SubjectSelectors.search_subjects(
                 search_term=search,
-                class_id=class_id
+                class_id=class_id,
+                group_id=group_id
             )
+        elif group_id:
+            queryset = SubjectSelectors.get_subjects_by_group(group_id)
         elif class_id:
             queryset = SubjectSelectors.get_subjects_by_class(class_id)
         else:
@@ -48,10 +52,10 @@ class SubjectViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
     
-    def update(self, request, pk=None):
+    def update(self, request, pk=None, partial=False):
         """Update a subject"""
         subject = Subject.objects.get(id=pk)
-        serializer = SubjectSerializer(subject, data=request.data, partial=True)
+        serializer = SubjectSerializer(subject, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         
         subject = SubjectService.update_subject(

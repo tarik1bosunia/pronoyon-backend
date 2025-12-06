@@ -14,6 +14,7 @@ class ClassService:
             name=data['name'],
             code=data.get('code'),
             description=data.get('description', ''),
+            has_groups=data.get('has_groups', False),
             order=data.get('order', 0),
             created_by=user
         )
@@ -31,6 +32,8 @@ class ClassService:
             class_obj.code = data['code']
         if 'description' in data:
             class_obj.description = data['description']
+        if 'has_groups' in data:
+            class_obj.has_groups = data['has_groups']
         if 'order' in data:
             class_obj.order = data['order']
         if 'is_active' in data:

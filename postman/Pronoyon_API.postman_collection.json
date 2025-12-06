@@ -1,0 +1,661 @@
+{
+  "info": {
+    "name": "Pronoyon Question Bank API",
+    "description": "Complete API collection with Class, Group, Subject, Chapter, Topic, Question, and Draft support",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "pronoyon-complete-api",
+    "version": "3.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{access_token}}", "type": "string"}]
+  },
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:8000", "type": "string"},
+    {"key": "access_token", "value": "", "type": "string"},
+    {"key": "refresh_token", "value": "", "type": "string"},
+    {"key": "class_id", "value": "", "type": "string"},
+    {"key": "group_id", "value": "", "type": "string"},
+    {"key": "subject_id", "value": "", "type": "string"},
+    {"key": "chapter_id", "value": "", "type": "string"},
+    {"key": "topic_id", "value": "", "type": "string"},
+    {"key": "question_id", "value": "", "type": "string"},
+    {"key": "draft_id", "value": "", "type": "string"}
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"user@pronoyon.com\",\n  \"password1\": \"SecurePass123!\",\n  \"password2\": \"SecurePass123!\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\"\n}"},
+            "url": {"raw": "{{base_url}}/api/auth/registration/", "host": ["{{base_url}}"], "path": ["api", "auth", "registration", ""]}
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"t@t.com\",\n  \"password\": \"t\"\n}"},
+            "url": {"raw": "{{base_url}}/api/auth/login/", "host": ["{{base_url}}"], "path": ["api", "auth", "login", ""]},
+            "description": "Login and save access_token"
+          },
+          "event": [{"listen": "test", "script": {"exec": ["if (pm.response.code === 200) {", "    var jsonData = pm.response.json();", "    pm.collectionVariables.set('access_token', jsonData.access);", "    pm.collectionVariables.set('refresh_token', jsonData.refresh);", "}"]}}]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"},
+            "url": {"raw": "{{base_url}}/api/auth/token/refresh/", "host": ["{{base_url}}"], "path": ["api", "auth", "token", "refresh", ""]}
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/auth/logout/", "host": ["{{base_url}}"], "path": ["api", "auth", "logout", ""]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "📚 Classes",
+      "item": [
+        {
+          "name": "List All Classes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/classes/", "host": ["{{base_url}}"], "path": ["api", "questions", "classes", ""]},
+            "description": "Get all classes with subject_count and group_count"
+          }
+        },
+        {
+          "name": "Create Class (Manager)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Class 6\",\n  \"code\": \"CLS6\",\n  \"description\": \"Sixth grade\",\n  \"has_groups\": false,\n  \"order\": 6\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/classes/", "host": ["{{base_url}}"], "path": ["api", "questions", "classes", ""]}
+          },
+          "event": [{"listen": "test", "script": {"exec": ["if (pm.response.code === 201) {", "    pm.collectionVariables.set('class_id', pm.response.json().id);", "}"]}}]
+        },
+        {
+          "name": "Create HSC Class (With Groups)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"HSC\",\n  \"code\": \"HSC\",\n  \"description\": \"Higher Secondary Certificate\",\n  \"has_groups\": true,\n  \"order\": 12\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/classes/", "host": ["{{base_url}}"], "path": ["api", "questions", "classes", ""]}
+          }
+        },
+        {
+          "name": "Get Class Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/classes/{{class_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "classes", "{{class_id}}", ""]},
+            "description": "Get class with subjects and groups"
+          }
+        },
+        {
+          "name": "Update Class",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Class 6 Updated\",\n  \"has_groups\": true\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/classes/{{class_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "classes", "{{class_id}}", ""]}
+          }
+        },
+        {
+          "name": "Delete Class",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/classes/{{class_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "classes", "{{class_id}}", ""]},
+            "description": "Soft delete"
+          }
+        },
+        {
+          "name": "Search Classes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/classes/?search=HSC", "host": ["{{base_url}}"], "path": ["api", "questions", "classes", ""], "query": [{"key": "search", "value": "HSC"}]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎓 Groups",
+      "item": [
+        {
+          "name": "List All Groups",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/groups/", "host": ["{{base_url}}"], "path": ["api", "questions", "groups", ""]},
+            "description": "Get all groups with subject count"
+          }
+        },
+        {
+          "name": "List Groups by Class",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/groups/?class_id={{class_id}}", "host": ["{{base_url}}"], "path": ["api", "questions", "groups", ""], "query": [{"key": "class_id", "value": "{{class_id}}"}]}
+          }
+        },
+        {
+          "name": "Create Group - Science",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"class_level\": \"{{class_id}}\",\n  \"name\": \"Science\",\n  \"code\": \"SCI\",\n  \"group_type\": \"science\",\n  \"description\": \"Science stream\",\n  \"order\": 1\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/groups/", "host": ["{{base_url}}"], "path": ["api", "questions", "groups", ""]}
+          },
+          "event": [{"listen": "test", "script": {"exec": ["if (pm.response.code === 201) {", "    pm.collectionVariables.set('group_id', pm.response.json().id);", "}"]}}]
+        },
+        {
+          "name": "Create Group - Arts",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"class_level\": \"{{class_id}}\",\n  \"name\": \"Arts\",\n  \"code\": \"ARTS\",\n  \"group_type\": \"arts\",\n  \"description\": \"Arts/Humanities stream\",\n  \"order\": 2\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/groups/", "host": ["{{base_url}}"], "path": ["api", "questions", "groups", ""]}
+          }
+        },
+        {
+          "name": "Create Group - Commerce",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"class_level\": \"{{class_id}}\",\n  \"name\": \"Commerce\",\n  \"code\": \"COM\",\n  \"group_type\": \"commerce\",\n  \"description\": \"Commerce/Business stream\",\n  \"order\": 3\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/groups/", "host": ["{{base_url}}"], "path": ["api", "questions", "groups", ""]}
+          }
+        },
+        {
+          "name": "Get Group Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/groups/{{group_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "groups", "{{group_id}}", ""]},
+            "description": "Get group with subjects"
+          }
+        },
+        {
+          "name": "Update Group",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Science Updated\",\n  \"description\": \"Updated description\"\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/groups/{{group_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "groups", "{{group_id}}", ""]}
+          }
+        },
+        {
+          "name": "Delete Group",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/groups/{{group_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "groups", "{{group_id}}", ""]}
+          }
+        },
+        {
+          "name": "Filter Groups by Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/groups/?group_type=science", "host": ["{{base_url}}"], "path": ["api", "questions", "groups", ""], "query": [{"key": "group_type", "value": "science"}]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "📖 Subjects",
+      "item": [
+        {
+          "name": "List All Subjects",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/subjects/", "host": ["{{base_url}}"], "path": ["api", "questions", "subjects", ""]}
+          }
+        },
+        {
+          "name": "List Subjects by Class",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/subjects/?class_id={{class_id}}", "host": ["{{base_url}}"], "path": ["api", "questions", "subjects", ""], "query": [{"key": "class_id", "value": "{{class_id}}"}]}
+          }
+        },
+        {
+          "name": "List Subjects by Group",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/subjects/?group_id={{group_id}}", "host": ["{{base_url}}"], "path": ["api", "questions", "subjects", ""], "query": [{"key": "group_id", "value": "{{group_id}}"}]}
+          }
+        },
+        {
+          "name": "Create Subject (No Group)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"class_level\": \"{{class_id}}\",\n  \"name\": \"Mathematics\",\n  \"code\": \"MATH\",\n  \"description\": \"Mathematics course\",\n  \"order\": 1\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/subjects/", "host": ["{{base_url}}"], "path": ["api", "questions", "subjects", ""]}
+          },
+          "event": [{"listen": "test", "script": {"exec": ["if (pm.response.code === 201) {", "    pm.collectionVariables.set('subject_id', pm.response.json().id);", "}"]}}]
+        },
+        {
+          "name": "Create Subject (With Group)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"class_level\": \"{{class_id}}\",\n  \"group\": \"{{group_id}}\",\n  \"name\": \"Physics\",\n  \"code\": \"PHY\",\n  \"description\": \"Physics for Science group\",\n  \"order\": 1\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/subjects/", "host": ["{{base_url}}"], "path": ["api", "questions", "subjects", ""]}
+          }
+        },
+        {
+          "name": "Get Subject Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/subjects/{{subject_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "subjects", "{{subject_id}}", ""]},
+            "description": "Get subject with chapters"
+          }
+        },
+        {
+          "name": "Update Subject",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Physics Advanced\",\n  \"description\": \"Updated\"\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/subjects/{{subject_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "subjects", "{{subject_id}}", ""]}
+          }
+        },
+        {
+          "name": "Delete Subject",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/subjects/{{subject_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "subjects", "{{subject_id}}", ""]}
+          }
+        },
+        {
+          "name": "Search Subjects",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/subjects/?search=Physics", "host": ["{{base_url}}"], "path": ["api", "questions", "subjects", ""], "query": [{"key": "search", "value": "Physics"}]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "📑 Chapters",
+      "item": [
+        {
+          "name": "List All Chapters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/chapters/", "host": ["{{base_url}}"], "path": ["api", "questions", "chapters", ""]}
+          }
+        },
+        {
+          "name": "List Chapters by Subject",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/chapters/?subject_id={{subject_id}}", "host": ["{{base_url}}"], "path": ["api", "questions", "chapters", ""], "query": [{"key": "subject_id", "value": "{{subject_id}}"}]}
+          }
+        },
+        {
+          "name": "Create Chapter",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"subject\": \"{{subject_id}}\",\n  \"name\": \"Mechanics\",\n  \"description\": \"Newton's Laws and Motion\",\n  \"order\": 1\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/chapters/", "host": ["{{base_url}}"], "path": ["api", "questions", "chapters", ""]}
+          },
+          "event": [{"listen": "test", "script": {"exec": ["if (pm.response.code === 201) {", "    pm.collectionVariables.set('chapter_id', pm.response.json().id);", "}"]}}]
+        },
+        {
+          "name": "Get Chapter Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/chapters/{{chapter_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "chapters", "{{chapter_id}}", ""]}
+          }
+        },
+        {
+          "name": "Update Chapter",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Mechanics Updated\"\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/chapters/{{chapter_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "chapters", "{{chapter_id}}", ""]}
+          }
+        },
+        {
+          "name": "Delete Chapter",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/chapters/{{chapter_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "chapters", "{{chapter_id}}", ""]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔖 Topics",
+      "item": [
+        {
+          "name": "List All Topics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/topics/", "host": ["{{base_url}}"], "path": ["api", "questions", "topics", ""]}
+          }
+        },
+        {
+          "name": "List Topics by Chapter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/topics/?chapter_id={{chapter_id}}", "host": ["{{base_url}}"], "path": ["api", "questions", "topics", ""], "query": [{"key": "chapter_id", "value": "{{chapter_id}}"}]}
+          }
+        },
+        {
+          "name": "Create Topic",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"chapter\": \"{{chapter_id}}\",\n  \"name\": \"Newton's First Law\",\n  \"description\": \"Law of Inertia\",\n  \"order\": 1\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/topics/", "host": ["{{base_url}}"], "path": ["api", "questions", "topics", ""]}
+          },
+          "event": [{"listen": "test", "script": {"exec": ["if (pm.response.code === 201) {", "    pm.collectionVariables.set('topic_id', pm.response.json().id);", "}"]}}]
+        },
+        {
+          "name": "Get Topic Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/topics/{{topic_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "topics", "{{topic_id}}", ""]}
+          }
+        },
+        {
+          "name": "Update Topic",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Newton's First Law Updated\"\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/topics/{{topic_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "topics", "{{topic_id}}", ""]}
+          }
+        },
+        {
+          "name": "Delete Topic",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/topics/{{topic_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "topics", "{{topic_id}}", ""]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "❓ Questions",
+      "item": [
+        {
+          "name": "List All Questions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/questions/", "host": ["{{base_url}}"], "path": ["api", "questions", "questions", ""]}
+          }
+        },
+        {
+          "name": "Filter Questions by Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/questions/?type=mcq", "host": ["{{base_url}}"], "path": ["api", "questions", "questions", ""], "query": [{"key": "type", "value": "mcq"}]}
+          }
+        },
+        {
+          "name": "Filter Questions by Subject",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/questions/?subject={{subject_id}}", "host": ["{{base_url}}"], "path": ["api", "questions", "questions", ""], "query": [{"key": "subject", "value": "{{subject_id}}"}]}
+          }
+        },
+        {
+          "name": "Filter Questions by Difficulty",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/questions/?difficulty=easy", "host": ["{{base_url}}"], "path": ["api", "questions", "questions", ""], "query": [{"key": "difficulty", "value": "easy"}]}
+          }
+        },
+        {
+          "name": "Create MCQ Simple",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"type\": \"mcq\",\n  \"mcq_subtype\": \"simple\",\n  \"question_text\": \"What is the **acceleration** due to gravity? $g = 9.8 \\\\, m/s^2$\",\n  \"marks\": 1,\n  \"difficulty\": \"easy\",\n  \"subject\": \"{{subject_id}}\",\n  \"topics\": [\"{{topic_id}}\"],\n  \"solution\": \"The standard acceleration due to gravity on Earth is $9.8 \\\\, m/s^2$\",\n  \"mcq_options\": [\n    {\"option_text\": \"$9.8 \\\\, m/s^2$\", \"option_label\": \"A\", \"is_correct\": true, \"order\": 1},\n    {\"option_text\": \"$8.9 \\\\, m/s^2$\", \"option_label\": \"B\", \"is_correct\": false, \"order\": 2},\n    {\"option_text\": \"$10.0 \\\\, m/s^2$\", \"option_label\": \"C\", \"is_correct\": false, \"order\": 3},\n    {\"option_text\": \"$9.0 \\\\, m/s^2$\", \"option_label\": \"D\", \"is_correct\": false, \"order\": 4}\n  ]\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/questions/", "host": ["{{base_url}}"], "path": ["api", "questions", "questions", ""]}
+          },
+          "event": [{"listen": "test", "script": {"exec": ["if (pm.response.code === 201) {", "    pm.collectionVariables.set('question_id', pm.response.json().id);", "}"]}}]
+        },
+        {
+          "name": "Create MCQ Combined",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"type\": \"mcq\",\n  \"mcq_subtype\": \"combined\",\n  \"question_text\": \"নিচের বিবৃতিগুলো পড়ুন:\\n\\ni. নিউটনের প্রথম সূত্র\\nii. নিউটনের দ্বিতীয় সূত্র\\niii. নিউটনের তৃতীয় সূত্র\\n\\nনিচের কোনটি সঠিক?\",\n  \"marks\": 1,\n  \"difficulty\": \"medium\",\n  \"subject\": \"{{subject_id}}\",\n  \"topics\": [\"{{topic_id}}\"],\n  \"mcq_options\": [\n    {\"option_text\": \"i ও ii\", \"option_label\": \"ক\", \"is_correct\": false, \"order\": 1, \"combined_option_indices\": [0, 1]},\n    {\"option_text\": \"i ও iii\", \"option_label\": \"খ\", \"is_correct\": false, \"order\": 2, \"combined_option_indices\": [0, 2]},\n    {\"option_text\": \"ii ও iii\", \"option_label\": \"গ\", \"is_correct\": false, \"order\": 3, \"combined_option_indices\": [1, 2]},\n    {\"option_text\": \"i, ii ও iii\", \"option_label\": \"ঘ\", \"is_correct\": true, \"order\": 4, \"combined_option_indices\": [0, 1, 2]}\n  ]\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/questions/", "host": ["{{base_url}}"], "path": ["api", "questions", "questions", ""]}
+          }
+        },
+        {
+          "name": "Create CQ (Creative Question)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"type\": \"cq\",\n  \"question_text\": \"একটি বস্তুর উপর $10N$ বল প্রয়োগ করা হলো।\",\n  \"marks\": 10,\n  \"difficulty\": \"hard\",\n  \"subject\": \"{{subject_id}}\",\n  \"topics\": [\"{{topic_id}}\"],\n  \"cq_sub_questions\": [\n    {\"label\": \"a\", \"sub_question_text\": \"বলের সংজ্ঞা লিখুন।\", \"marks\": 2, \"answer\": \"বল হলো এমন একটি বাহ্যিক প্রভাব যা...\", \"order\": 1},\n    {\"label\": \"b\", \"sub_question_text\": \"বস্তুর ত্বরণ নির্ণয় করুন যদি ভর $2kg$ হয়।\", \"marks\": 4, \"answer\": \"$F = ma$ সূত্র থেকে, $a = F/m = 10/2 = 5 \\\\, m/s^2$\", \"order\": 2},\n    {\"label\": \"c\", \"sub_question_text\": \"নিউটনের দ্বিতীয় সূত্র ব্যাখ্যা করুন।\", \"marks\": 4, \"answer\": \"নিউটনের দ্বিতীয় সূত্র অনুযায়ী...\", \"order\": 3}\n  ]\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/questions/", "host": ["{{base_url}}"], "path": ["api", "questions", "questions", ""]}
+          }
+        },
+        {
+          "name": "Get Question Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/questions/{{question_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "questions", "{{question_id}}", ""]}
+          }
+        },
+        {
+          "name": "Update Question",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"question_text\": \"Updated question text\",\n  \"difficulty\": \"medium\"\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/questions/{{question_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "questions", "{{question_id}}", ""]}
+          }
+        },
+        {
+          "name": "Delete Question",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/questions/{{question_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "questions", "{{question_id}}", ""]}
+          }
+        },
+        {
+          "name": "Search Questions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/questions/?search=gravity", "host": ["{{base_url}}"], "path": ["api", "questions", "questions", ""], "query": [{"key": "search", "value": "gravity"}]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "📝 User Drafts",
+      "item": [
+        {
+          "name": "List My Drafts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/drafts/", "host": ["{{base_url}}"], "path": ["api", "questions", "drafts", ""]}
+          }
+        },
+        {
+          "name": "Create Draft",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"My Physics Exam Paper\",\n  \"description\": \"Collection for final exam\",\n  \"is_favorite\": false\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/drafts/", "host": ["{{base_url}}"], "path": ["api", "questions", "drafts", ""]}
+          },
+          "event": [{"listen": "test", "script": {"exec": ["if (pm.response.code === 201) {", "    pm.collectionVariables.set('draft_id', pm.response.json().id);", "}"]}}]
+        },
+        {
+          "name": "Get Draft Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "drafts", "{{draft_id}}", ""]}
+          }
+        },
+        {
+          "name": "Add Question to Draft",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"question\": \"{{question_id}}\",\n  \"order\": 1,\n  \"notes\": \"Important question\"\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/questions/", "host": ["{{base_url}}"], "path": ["api", "questions", "drafts", "{{draft_id}}", "questions", ""]}
+          }
+        },
+        {
+          "name": "Remove Question from Draft",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/questions/{{question_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "drafts", "{{draft_id}}", "questions", "{{question_id}}", ""]}
+          }
+        },
+        {
+          "name": "Update Draft",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Updated Draft Title\",\n  \"is_favorite\": true\n}"},
+            "url": {"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "drafts", "{{draft_id}}", ""]}
+          }
+        },
+        {
+          "name": "Delete Draft",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/questions/drafts/{{draft_id}}/", "host": ["{{base_url}}"], "path": ["api", "questions", "drafts", "{{draft_id}}", ""]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Payments & Wallet",
+      "item": [
+        {
+          "name": "Get My Wallet Balance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/wallet/", "host": ["{{base_url}}"], "path": ["api", "wallet", ""]}
+          }
+        },
+        {
+          "name": "Top Up Wallet (bKash)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"amount\": 500,\n  \"payment_method\": \"bkash\",\n  \"gateway_transaction_id\": \"TXN123456789\"\n}"},
+            "url": {"raw": "{{base_url}}/api/wallet/topup/", "host": ["{{base_url}}"], "path": ["api", "wallet", "topup", ""]}
+          }
+        },
+        {
+          "name": "Wallet Transaction History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/wallet/transactions/", "host": ["{{base_url}}"], "path": ["api", "wallet", "transactions", ""]}
+          }
+        },
+        {
+          "name": "Export Draft to PDF",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"draft_id\": \"{{draft_id}}\",\n  \"include_solutions\": false\n}"},
+            "url": {"raw": "{{base_url}}/api/export/pdf/", "host": ["{{base_url}}"], "path": ["api", "export", "pdf", ""]},
+            "description": "Deducts 0.5 TK per MCQ, 3 TK per CQ"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 RBAC & Permissions",
+      "item": [
+        {
+          "name": "Get My Permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/rbac/my-permissions/", "host": ["{{base_url}}"], "path": ["api", "rbac", "my-permissions", ""]}
+          }
+        },
+        {
+          "name": "List All Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/rbac/roles/", "host": ["{{base_url}}"], "path": ["api", "rbac", "roles", ""]}
+          }
+        },
+        {
+          "name": "Assign Role (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"user_id\": \"user-uuid\",\n  \"role\": \"manager\"\n}"},
+            "url": {"raw": "{{base_url}}/api/rbac/assign-role/", "host": ["{{base_url}}"], "path": ["api", "rbac", "assign-role", ""]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏥 Health Check",
+      "item": [
+        {
+          "name": "API Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/health/", "host": ["{{base_url}}"], "path": ["health", ""]}
+          }
+        }
+      ]
+    }
+  ]
+}

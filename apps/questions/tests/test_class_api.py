@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from apps.questions.models import Class
+from apps.questions.models import Class, Group
 
 User = get_user_model()
 
@@ -12,6 +12,7 @@ class ClassAPITestCase(APITestCase):
     def setUp(self):
         """Set up test data"""
         # Clean all existing data first
+        Group.objects.all().delete()
         Class.objects.all().delete()
         User.objects.all().delete()
         
@@ -26,6 +27,7 @@ class ClassAPITestCase(APITestCase):
             name='Class 6',
             code='CLS6',
             description='Sixth grade',
+            has_groups=False,
             order=6,
             created_by=self.user
         )
@@ -33,7 +35,16 @@ class ClassAPITestCase(APITestCase):
             name='Class 7',
             code='CLS7',
             description='Seventh grade',
+            has_groups=False,
             order=7,
+            created_by=self.user
+        )
+        self.hsc_class = Class.objects.create(
+            name='HSC',
+            code='HSC',
+            description='Higher Secondary Certificate',
+            has_groups=True,
+            order=12,
             created_by=self.user
         )
     
@@ -43,7 +54,7 @@ class ClassAPITestCase(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = response.data.get('results', response.data)
-        self.assertEqual(len(results), 2)
+        self.assertEqual(len(results), 3)
     
     def test_create_class(self):
         """Test creating a new class"""
@@ -51,6 +62,7 @@ class ClassAPITestCase(APITestCase):
             'name': 'Class 8',
             'code': 'CLS8',
             'description': 'Eighth grade',
+            'has_groups': False,
             'order': 8
         }
         
@@ -58,7 +70,23 @@ class ClassAPITestCase(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['name'], 'Class 8')
-        self.assertEqual(Class.objects.count(), 3)
+        self.assertEqual(response.data['has_groups'], False)
+        self.assertEqual(Class.objects.count(), 4)
+    
+    def test_create_class_with_groups(self):
+        """Test creating a class with groups enabled"""
+        data = {
+            'name': 'Admission',
+            'code': 'ADM',
+            'description': 'Admission test preparation',
+            'has_groups': True,
+            'order': 13
+        }
+        
+        response = self.client.post('/api/questions/classes/', data)
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['has_groups'], True)
     
     def test_get_class_detail(self):
         """Test getting class detail"""
@@ -130,3 +158,32 @@ class ClassAPITestCase(APITestCase):
         response = self.client.post('/api/questions/classes/', data)
         
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_class_with_groups_flag(self):
+        """Test that has_groups flag is properly returned"""
+        response = self.client.get(f'/api/questions/classes/{self.hsc_class.id}/')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['has_groups'])
+    
+    def test_class_without_groups_flag(self):
+        """Test that has_groups flag is False for regular classes"""
+        response = self.client.get(f'/api/questions/classes/{self.class1.id}/')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['has_groups'])
+    
+    def test_update_class_has_groups(self):
+        """Test updating has_groups flag"""
+        data = {'has_groups': True}
+        
+        response = self.client.patch(
+            f'/api/questions/classes/{self.class1.id}/',
+            data
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['has_groups'])
+        
+        self.class1.refresh_from_db()
+        self.assertTrue(self.class1.has_groups)

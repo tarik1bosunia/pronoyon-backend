@@ -14,8 +14,16 @@ class SubjectService:
         # validated_data may contain the object itself or the ID
         class_level = data.get('class_level_id') or data.get('class_level')
         class_level_id = class_level.id if hasattr(class_level, 'id') else class_level
+        
+        # Handle group
+        group = data.get('group_id') or data.get('group')
+        group_id = None
+        if group:
+            group_id = group.id if hasattr(group, 'id') else group
+        
         subject = Subject.objects.create(
             class_level_id=class_level_id,
+            group_id=group_id,
             name=data['name'],
             code=data.get('code'),
             description=data.get('description', ''),
@@ -34,6 +42,12 @@ class SubjectService:
         if 'class_level_id' in data or 'class_level' in data:
             class_level = data.get('class_level_id') or data.get('class_level')
             subject.class_level_id = class_level.id if hasattr(class_level, 'id') else class_level
+        
+        # Handle group
+        if 'group_id' in data or 'group' in data:
+            group = data.get('group_id') or data.get('group')
+            subject.group_id = group.id if (group and hasattr(group, 'id')) else group
+        
         if 'name' in data:
             subject.name = data['name']
         if 'code' in data:

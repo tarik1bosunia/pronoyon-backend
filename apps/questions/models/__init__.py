@@ -1,4 +1,5 @@
 from .class_model import Class
+from .group import Group
 from .subject import Subject
 from .chapter import Chapter
 from .topic import Topic
@@ -9,6 +10,7 @@ from .draft import UserDraft, DraftQuestion
 
 __all__ = [
     'Class',
+    'Group',
     'Subject',
     'Chapter',
     'Topic',
