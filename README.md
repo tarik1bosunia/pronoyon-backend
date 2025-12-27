@@ -68,7 +68,7 @@ A robust Django-based backend API with advanced Role-Based Access Control (RBAC)
 1. **Clone the repository**
 
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/tarik1bosunia/pronoyon-backend.git
    cd pronoyon-backend
    ```
 
@@ -385,7 +385,7 @@ make prod-build
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
+- **Issues**: [GitHub Issues](https://github.com/tarik1bosunia/pronoyon-backend/issues)
 - **Documentation**: [`guides/`](guides/)
 - **Email**: <support@pronoyon.com>
 
