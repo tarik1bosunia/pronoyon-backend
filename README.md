@@ -1,662 +1,394 @@
-# ReplyCompass# ReplyCompass
+# Pronoyon Backend
 
-docker compose exec web python manage.py createsuperuser
-
-> Django-based web application with advanced Role-Based Access Control (RBAC) systemA Django-based web application with comprehensive Role-Based Access Control (RBAC) system.
-
-
-
-[![Django](https://img.shields.io/badge/Django-5.2.8-green.svg)](https://www.djangoproject.com/)## Features
-
+[![Django](https://img.shields.io/badge/Django-5.2.8-green.svg)](https://www.djangoproject.com/)
 [![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-7-red.svg)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/)- 🔐 **Custom User Authentication** - Email-based authentication with Django Allauth
+A robust Django-based backend API with advanced Role-Based Access Control (RBAC), comprehensive authentication, payment processing, and question bank management.
 
-[![Redis](https://img.shields.io/badge/Redis-7-red.svg)](https://redis.io/)- 🎭 **Advanced RBAC System** - 9 predefined roles with 33 granular permissions
+## ✨ Features
 
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)- 🔄 **RESTful API** - Django REST Framework with JWT authentication
+- 🔐 **Authentication & Authorization**
+  - Email-based authentication with Django Allauth
+  - Social OAuth (Google)
+  - JWT token-based authentication
+  - Advanced RBAC system with 9 hierarchical roles and 33 granular permissions
 
-- 📊 **PostgreSQL Database** - Production-ready relational database
+- 🎯 **Core Functionality**
+  - User account management
+  - Question bank system with groups and subjects
+  - Payment processing and wallet management
+  - RESTful API with Django REST Framework
 
-## ✨ Features- ⚡ **Redis Cache** - High-performance caching and session storage
+- 🚀 **Performance & Scalability**
+  - PostgreSQL database for production-ready data storage
+  - Redis for caching and session management
+  - Celery for asynchronous task processing
+  - Django Channels for WebSocket support
 
-- 🐳 **Docker Support** - Fully containerized development and production setup
+- 🛠️ **Developer Experience**
+  - Fully containerized with Docker
+  - Hot-reload development environment
+  - Comprehensive API documentation (Swagger/ReDoc)
+  - Extensive test coverage
+  - Code quality tools (Black, Flake8, Pylint)
 
-- 🔐 **Email-Based Authentication** - Django Allauth with social OAuth- 🔄 **Celery Tasks** - Asynchronous task processing
+- 📊 **Production Ready**
+  - Gunicorn production server
+  - Nginx reverse proxy
+  - Environment-based configuration
+  - Health check endpoints
+  - Error tracking with Sentry
 
-- 🎭 **Advanced RBAC** - 9 hierarchical roles with 33 granular permissions- 🌐 **Django Channels** - WebSocket support for real-time features
+## 🏗️ Tech Stack
 
-- 🚀 **REST API** - DRF with JWT authentication + Swagger docs- 📝 **API Documentation** - Auto-generated with drf-spectacular
+| Component | Technology |
+|-----------|-----------|
+| **Backend Framework** | Django 5.2.8 |
+| **API Framework** | Django REST Framework |
+| **Database** | PostgreSQL 15 |
+| **Cache/Broker** | Redis 7 |
+| **Task Queue** | Celery + Celery Beat |
+| **Web Server** | Gunicorn + Nginx |
+| **WebSocket** | Django Channels |
+| **Containerization** | Docker & Docker Compose |
+| **API Documentation** | drf-spectacular |
 
-- 🐘 **PostgreSQL** - Production-ready database
-
-- ⚡ **Redis** - Caching & session storage## Tech Stack
-
-- 🐳 **Docker** - Full containerization with hot-reload
-
-- 🔄 **Celery** - Async task processing with beat scheduler- **Backend**: Django 5.2.8
-
-- 🌐 **WebSockets** - Django Channels for real-time features- **API**: Django REST Framework
-
-- 📊 **API Documentation** - Auto-generated Swagger & ReDoc- **Database**: PostgreSQL 15
-
-- **Cache/Broker**: Redis 7
-
-## 🚀 Quick Start- **Task Queue**: Celery
-
-- **Web Server**: Gunicorn + Nginx
-
-### Prerequisites- **Containerization**: Docker & Docker Compose
-
-
-
-- Docker & Docker Compose## Quick Start with Docker
-
-- Git
+## 🚀 Quick Start
 
 ### Prerequisites
 
+- Docker & Docker Compose installed
+- Git
+
 ### Installation
 
-- Docker & Docker Compose installed
+1. **Clone the repository**
 
-```bash- Git
+   ```bash
+   git clone <your-repo-url>
+   cd pronoyon-backend
+   ```
 
-# Clone repository
+2. **Create environment file**
 
-git clone <your-repo-url>### 1. Clone the repository
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
 
-cd replycompass
+3. **Start the application**
+
+   ```bash
+   make install
+   ```
+
+   Or manually:
+
+   ```bash
+   # Build and start services
+   BUILD_TARGET=development docker compose build
+   BUILD_TARGET=development docker compose up -d
+   
+   # Run migrations
+   docker compose exec web python manage.py migrate
+   
+   # Seed RBAC roles and permissions
+   docker compose exec web python manage.py seed_rbac
+   ```
+
+4. **Access the application**
+   - **Admin Panel**: <http://localhost:8000/admin/>
+   - **API Root**: <http://localhost:8000/api/>
+   - **API Docs (Swagger)**: <http://localhost:8000/api/schema/swagger-ui/>
+   - **API Docs (ReDoc)**: <http://localhost:8000/api/schema/redoc/>
+
+5. **Create superuser**
+
+   ```bash
+   docker compose exec web python manage.py createsuperuser
+   ```
+
+## 📋 Common Commands
+
+### Development
 
 ```bash
-
-# Setup and rungit clone <your-repo-url>
-
-make installcd replycompass
-
-``````
-
-
-
-That's it! The application will be available at http://localhost:8000### 2. Create environment file
-
-
-
-**Default credentials:**```bash
-
-- Email: `admin@replycompass.com`cp .env.example .env
-
-- Password: `admin123`# Edit .env with your configuration
-
+make dev              # Start development with hot-reload
+make dev-build        # Rebuild & start development
+make dev-down         # Stop development
+make dev-logs         # View development logs
 ```
 
-### Common Commands
-
-### 3. Start the application
+### Production
 
 ```bash
-
-make help          # Show all available commands#### Development Mode (with hot-reload)
-
-make dev           # Start development with hot-reload```bash
-
-make prod          # Start production environment# Set in .env:
-
-make test          # Run testsBUILD_TARGET=development
-
-make migrate       # Run database migrationsDEBUG=True
-
-make shell         # Open Django shellDJANGO_SETTINGS_MODULE=config.settings.docker
-
+make prod             # Start production environment
+make prod-build       # Rebuild & start production
+make prod-down        # Stop production
+make prod-logs        # View production logs
 ```
 
-# Start with watch mode
+### Database
 
-## 📋 Quick Referencedocker compose up --watch
-
+```bash
+make migrate          # Run database migrations
+make makemigrations   # Create new migrations
+make seed             # Seed RBAC roles and permissions
+make superuser        # Create Django superuser
 ```
 
-| Command | Description |- ✅ Auto-reloads on code changes
+### Testing
 
-|---------|-------------|- ✅ Django development server
+```bash
+make test             # Run all tests
+make coverage         # Run tests with coverage report
+```
 
-| `make dev` | Start development with hot-reload |- ✅ Detailed error pages
+### Utilities
 
-| `make dev-build` | Rebuild and start development |- ✅ Development tools installed
+```bash
+make shell            # Open Django shell (iPython)
+make bash             # Open container bash shell
+make ps               # List running containers
+make clean            # Remove containers and volumes
+make help             # Show all available commands
+```
 
-| `make prod` | Start production environment |- ✅ Best for local development
+## 🏛️ Project Structure
 
-| `make migrate` | Run database migrations |
-
-| `make seed` | Seed RBAC roles & permissions |#### Production Mode
-
-| `make test` | Run all tests |```bash
-
-| `make shell` | Django shell (iPython) |# Set in .env:
-
-| `make bash` | Container bash shell |BUILD_TARGET=production
-
-| `make health` | Check service health |DEBUG=False
-
-| `make clean` | Remove all containers & volumes |DJANGO_SETTINGS_MODULE=config.settings.production
-
-
-
-> Run `make help` for the complete list of commands# Start in background
-
-docker compose up -d
-
-## 🏗️ Architecture```
-
-- ✅ Gunicorn production server
-
-### Tech Stack- ✅ Multiple workers
-
-- ✅ Optimized for performance
-
-| Component | Technology |- ✅ Production security enabled
-
-|-----------|-----------|- ✅ Best for deployment
-
-| **Backend** | Django 5.2.8 |
-
-| **API** | Django REST Framework |> **Note**: The `BUILD_TARGET` environment variable controls which Dockerfile stage is used.
-
-| **Database** | PostgreSQL 15 |
-
-| **Cache** | Redis 7 |### 4. Access the application
-
-| **Task Queue** | Celery + Beat |
-
-| **Web Server** | Gunicorn + Nginx |- **Admin Panel**: http://localhost:8000/admin/
-
-| **Container** | Docker + Docker Compose |- **API**: http://localhost:8000/api/
-
-- **API Docs**: http://localhost:8000/api/schema/swagger-ui/
-
-### Project Structure
-
-**Default Superuser:**
-
-```- **Email**: `admin@replycompass.com`
-
-replycompass/- **Password**: `admin123`
-
+```
+pronoyon-backend/
 ├── apps/
-
-│   ├── accounts/       # User authentication> 📖 **See [guides/DEVELOPMENT.md](guides/DEVELOPMENT.md) for detailed development guide**
-
-│   ├── core/          # Core utilities
-
-│   └── rbac/          # Role-Based Access Control## 📚 Documentation
-
-├── config/            # Settings & configuration
-
-│   ├── settings/All detailed guides are in the [`guides/`](guides/) directory:
-
-│   │   ├── base.py           # Shared settings
-
-│   │   ├── local.py          # Local development### Getting Started
-
-│   │   ├── production.py     # Production- [Development Guide](guides/DEVELOPMENT.md) - Complete development workflow
-
-│   │   └── docker.py         # Docker- [Docker Watch Setup](guides/DOCKER_WATCH_SETUP.md) - Hot-reload development setup
-
-│   ├── urls.py- [Docker Setup Guide](guides/DOCKER_SETUP_GUIDE.md) - Comprehensive Docker configuration
-
-│   ├── celery.py- [Manual Setup Guide](guides/SETUP_GUIDE_MANUAL.md) - Local development without Docker
-
-│   └── wsgi.py/asgi.py
-
-├── guides/            # Documentation### RBAC System
-
-├── static/           # Static files- [RBAC Guide](guides/RBAC_GUIDE.md) - Complete RBAC documentation
-
-├── media/            # Uploaded files- [RBAC Quick Reference](guides/RBAC_QUICK_REFERENCE.md) - Quick reference for roles and permissions
-
-├── docker-compose.yml- [RBAC Implementation](guides/RBAC_IMPLEMENTATION_SUMMARY.md) - Technical implementation details
-
-├── Dockerfile- [Selectors & Services Guide](guides/RBAC_SELECTORS_SERVICES_GUIDE.md) - Architecture patterns
-
-├── Makefile
-
-└── requirements.txt### Configuration
-
-```- [Settings Configuration](guides/SETTINGS_CONFIGURATION_GUIDE.md) - Django settings explained
-
-- [CORS Configuration](guides/DJANGO_CORS_HEADERS_GUIDE.md) - Frontend integration setup
-
-## 🔐 RBAC System- [Multiple Frontends](guides/MULTIPLE_FRONTEND_SUPPORT.md) - Supporting multiple frontend apps
-
-
-
-### Hierarchical Roles### Deployment
-
-- [GitHub Checklist](guides/GITHUB_CHECKLIST.md) - Pre-deployment checklist
-
-| Role | Level | Description |- [Docker Fixes](guides/DOCKER_FIXES.md) - Common Docker issues and solutions
-
-|------|-------|-------------|
-
-| **Super Admin** | 80 | Full system access |## Development Setup
-
-| **Admin** | 70 | Administrative access |
-
-| **Manager** | 60 | Team management |### Local Development (without Docker)
-
-| **Support Agent** | 50 | Customer support |
-
-| **Content Manager** | 40 | Content management |1. **Create virtual environment**
-
-| **Moderator** | 30 | Content moderation |```bash
-
-| **Premium User** | 20 | Enhanced features |python -m venv venv
-
-| **User** | 10 | Standard access |source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-| **Guest** | 0 | Basic read access |```
-
-
-
-### Permission Categories2. **Install dependencies**
-
-```bash
-
-- **User Management** - CRUD operations on userspip install -r requirements.txt
-
-- **Content Management** - Content operations```
-
-- **Analytics** - View and export analytics
-
-- **Settings** - System configuration3. **Set up environment variables**
-
-- **Billing** - Billing and invoices```bash
-
-- **Support** - Ticket managementcp .env.example .env
-
-- **API Access** - API permissions# Configure your local database and Redis settings
-
-- **Admin Panel** - System administration```
-
-
-
-> See [`guides/rbac/RBAC_GUIDE.md`](guides/rbac/RBAC_GUIDE.md) for detailed documentation4. **Run migrations**
-
-```bash
-
-## 🌐 Access Pointspython manage.py migrate
-
-python manage.py seed_rbac  # Seed RBAC roles and permissions
-
-| Service | URL |```
-
-|---------|-----|
-
-| **Application** | http://localhost:8000 |5. **Create superuser**
-
-| **Admin Panel** | http://localhost:8000/admin/ |```bash
-
-| **API Root** | http://localhost:8000/api/ |python manage.py createsuperuser
-
-| **Swagger UI** | http://localhost:8000/api/schema/swagger/ |```
-
-| **ReDoc** | http://localhost:8000/api/schema/redoc/ |
-
-| **OpenAPI Schema** | http://localhost:8000/api/schema/ |6. **Run development server**
-
-```bash
-
-## 🔧 Developmentpython manage.py runserver
-
+│   ├── accounts/          # User authentication and profiles
+│   ├── core/              # Core utilities and base classes
+│   ├── rbac/              # Role-Based Access Control system
+│   ├── questions/         # Question bank management
+│   └── payments/          # Payment and wallet management
+├── config/                # Project settings and configuration
+│   ├── settings/
+│   │   ├── base.py       # Shared settings
+│   │   ├── local.py      # Local development settings
+│   │   ├── production.py # Production settings
+│   │   └── docker.py     # Docker-specific settings
+│   ├── urls.py           # URL routing
+│   ├── wsgi.py           # WSGI configuration
+│   └── asgi.py           # ASGI configuration
+├── guides/                # Comprehensive documentation
+├── scripts/               # Deployment and utility scripts
+├── static/                # Static files
+├── mediafiles/            # User uploaded files
+├── logs/                  # Application logs
+├── docker-compose.yml     # Docker Compose configuration
+├── Dockerfile             # Docker image definition
+├── Makefile               # Common commands
+└── requirements.txt       # Python dependencies
 ```
 
-### Development Mode (Hot-Reload)
+## 🔐 RBAC System
 
-## RBAC System
-
-```bash
-
-make devThe application includes a comprehensive Role-Based Access Control system with:
-
-```
+The application includes a comprehensive Role-Based Access Control system with hierarchical roles:
 
 ### Predefined Roles (Hierarchical)
 
-Features:
-
-- ✅ Auto-reload on code changes1. **Guest** (Level 0) - Basic read access
-
-- ✅ Django development server2. **User** (Level 10) - Standard user permissions
-
-- ✅ Detailed error pages3. **Premium User** (Level 20) - Enhanced features
-
-- ✅ Development tools (iPython, django-debug-toolbar)4. **Moderator** (Level 30) - Content moderation
-
-- ✅ File watching with `docker compose --watch`5. **Content Manager** (Level 40) - Content management
-
+1. **Guest** (Level 0) - Basic read access
+2. **User** (Level 10) - Standard user permissions
+3. **Premium User** (Level 20) - Enhanced features
+4. **Moderator** (Level 30) - Content moderation
+5. **Content Manager** (Level 40) - Content management
 6. **Support Agent** (Level 50) - Customer support
-
-### Environment Configuration7. **Manager** (Level 60) - Team management
-
+7. **Manager** (Level 60) - Team management
 8. **Admin** (Level 70) - Administrative access
+9. **Super Admin** (Level 80) - Full system access
 
-Create `.env` from `.env.example`:9. **Super Admin** (Level 80) - Full system access
+### Permission Categories
 
-
-
-```env### Permission Categories
-
-# Build Configuration
-
-BUILD_TARGET=development  # or 'production'- **User Management** - View, create, update, delete users
-
-DEBUG=True- **Content Management** - CRUD operations on content
-
+- **User Management** - View, create, update, delete users
+- **Content Management** - CRUD operations on content
 - **Analytics** - View and export analytics
+- **Settings** - System configuration
+- **Billing** - Billing and invoices
+- **Support** - Ticket management
+- **API Access** - API read/write/admin permissions
+- **Admin Panel** - System administration
 
-# Django- **Settings** - System configuration
+> 📖 See [`guides/rbac/RBAC_GUIDE.md`](guides/rbac/RBAC_GUIDE.md) for detailed RBAC documentation
 
-SECRET_KEY=your-secret-key-here- **Billing** - Billing and invoices
+## 🌐 API Documentation
 
-ALLOWED_HOSTS=localhost,127.0.0.1- **Support** - Ticket management
+Interactive API documentation is available at:
 
-- **API Access** - API read/write/admin
+- **Swagger UI**: <http://localhost:8000/api/schema/swagger-ui/>
+- **ReDoc**: <http://localhost:8000/api/schema/redoc/>
+- **OpenAPI Schema**: <http://localhost:8000/api/schema/>
 
-# Database- **Admin Panel** - System administration
-
-DB_NAME=replycompass
-
-DB_USER=replycompass_userSee [apps/rbac/README.md](apps/rbac/README.md) for detailed documentation.
-
-DB_PASSWORD=change-this-password
-
-## Docker Commands
-
-# Redis
-
-REDIS_PASSWORD=change-this-password```bash
-
-# Start all services
-
-# JWTdocker compose up -d
-
-JWT_ACCESS_TOKEN_LIFETIME_MINUTES=60
-
-JWT_REFRESH_TOKEN_LIFETIME_DAYS=7# View logs
-
-```docker compose logs -f
-
-
-
-> See [`.env.example`](.env.example) for all configuration options# Stop services
-
-docker compose down
-
-## 🧪 Testing
-
-# Rebuild images
-
-```bashdocker compose build --no-cache
-
-# Run all tests
-
-make test# Run Django commands
-
-docker compose exec web python manage.py <command>
-
-# Run specific app tests
-
-make test-app APP=rbac# Create migrations
-
-docker compose exec web python manage.py makemigrations
-
-# Run with coverage
-
-make coverage# Run migrations
-
-```docker compose exec web python manage.py migrate
-
-
-
-## 📦 Production Deployment# Create superuser
-
-docker compose exec web python manage.py createsuperuser
-
-### 1. Configure Environment
-
-# Run tests
-
-```envdocker compose exec web python manage.py test
-
-BUILD_TARGET=production```
-
-DEBUG=False
-
-SECRET_KEY=<strong-random-secret>## Project Structure
-
-ALLOWED_HOSTS=yourdomain.com
-
-```
-
-# Use external managed servicesreplycompass/
-
-DB_HOST=your-postgres-host├── apps/
-
-REDIS_HOST=your-redis-host│   ├── accounts/       # User authentication and profiles
-
-```│   ├── core/          # Core utilities and base classes
-
-│   └── rbac/          # Role-Based Access Control system
-
-### 2. Deploy├── config/            # Project settings and URLs
-
-│   ├── settings/
-
-```bash│   │   ├── base.py
-
-make prod-build│   │   ├── local.py
-
-```│   │   ├── production.py
-
-│   │   └── docker.py
-
-### Production Checklist│   ├── urls.py
-
-│   ├── wsgi.py
-
-- [ ] Change `SECRET_KEY` to strong random value│   └── asgi.py
-
-- [ ] Set `DEBUG=False`├── scripts/           # Deployment and utility scripts
-
-- [ ] Configure `ALLOWED_HOSTS` with your domain├── static/            # Static files
-
-- [ ] Use strong database passwords├── media/             # User uploaded files
-
-- [ ] Enable HTTPS/SSL├── logs/              # Application logs
-
-- [ ] Set up external PostgreSQL (AWS RDS, etc.)├── docker-compose.yml          # Full production setup
-
-- [ ] Set up external Redis├── docker-compose.simple.yml   # Simplified dev setup
-
-- [ ] Configure cloud storage for media files (S3, Cloudinary)├── docker-compose.dev.yml      # Development with MailHog
-
-- [ ] Set up error tracking (Sentry)├── Dockerfile
-
-- [ ] Configure logging└── requirements.txt
-
-- [ ] Set up monitoring```
-
-- [ ] Enable backups
-
-## Environment Variables
-
-> See [`guides/deployment/GITHUB_CHECKLIST.md`](guides/deployment/GITHUB_CHECKLIST.md) for complete checklist
+## ⚙️ Environment Configuration
 
 Key environment variables (see `.env.example` for full list):
 
-## 📚 Documentation
-
 ```env
+# Django
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
 
-### Quick Access# Django
-
-SECRET_KEY=your-secret-key
-
-| Category | Guide |DEBUG=False
-
-|----------|-------|ALLOWED_HOSTS=localhost,127.0.0.1
-
-| **Getting Started** | [`guides/development/DEVELOPMENT.md`](guides/development/DEVELOPMENT.md) |
-
-| **Docker** | [`guides/docker/DOCKER_SETUP_GUIDE.md`](guides/docker/DOCKER_SETUP_GUIDE.md) |# Database
-
-| **RBAC** | [`guides/rbac/RBAC_GUIDE.md`](guides/rbac/RBAC_GUIDE.md) |DB_NAME=replycompass
-
-| **Configuration** | [`guides/configuration/SETTINGS_CONFIGURATION_GUIDE.md`](guides/configuration/SETTINGS_CONFIGURATION_GUIDE.md) |DB_USER=replycompass_user
-
-DB_PASSWORD=changeme
-
-### All GuidesDB_HOST=db
-
+# Database
+DB_NAME=pronoyon
+DB_USER=pronoyon_user
+DB_PASSWORD=change-this-password
+DB_HOST=db
 DB_PORT=5432
 
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_PASSWORD=change-this-password
+
+# JWT
+JWT_ACCESS_TOKEN_LIFETIME_MINUTES=60
+JWT_REFRESH_TOKEN_LIFETIME_DAYS=7
+
+# Build Configuration
+BUILD_TARGET=development  # or 'production'
+DJANGO_SETTINGS_MODULE=config.settings.docker
 ```
 
-guides/# Redis
+## 🧪 Testing
 
-├── development/          # Development workflowsREDIS_HOST=redis
-
-│   ├── DEVELOPMENT.mdREDIS_PORT=6379
-
-│   └── SETUP_GUIDE_MANUAL.mdREDIS_PASSWORD=changeme
-
-├── docker/              # Docker & containerization
-
-│   ├── DOCKER_SETUP_GUIDE.md# JWT
-
-│   ├── DOCKER_WATCH_SETUP.mdJWT_ACCESS_TOKEN_LIFETIME_MINUTES=60
-
-│   ├── DOCKER_FIXES.mdJWT_REFRESH_TOKEN_LIFETIME_DAYS=7
-
-│   └── QUICK_REFERENCE.md```
-
-├── rbac/                # RBAC system
-
-│   ├── RBAC_GUIDE.md## API Documentation
-
-│   ├── RBAC_IMPLEMENTATION_SUMMARY.md
-
-│   ├── RBAC_QUICK_REFERENCE.mdAccess the interactive API documentation at:
-
-│   └── RBAC_SELECTORS_SERVICES_GUIDE.md
-
-├── configuration/       # Settings & config- **Swagger UI**: http://localhost:8000/api/schema/swagger-ui/
-
-│   ├── SETTINGS_CONFIGURATION_GUIDE.md- **ReDoc**: http://localhost:8000/api/schema/redoc/
-
-│   ├── DJANGO_CORS_HEADERS_GUIDE.md- **OpenAPI Schema**: http://localhost:8000/api/schema/
-
-│   └── MULTIPLE_FRONTEND_SUPPORT.md
-
-└── deployment/          # Deployment & production## Testing
-
-    └── GITHUB_CHECKLIST.md
-
-``````bash
-
+```bash
 # Run all tests
+make test
 
-## 🛠️ Troubleshootingdocker compose exec web python manage.py test
-
-
-
-### Common Issues# Run specific app tests
-
+# Run specific app tests
 docker compose exec web python manage.py test apps.rbac
 
-**Services won't start:**
-
-```bash# Run with coverage
-
-make health  # Check service healthdocker compose exec web pytest --cov=apps
-
-make clean-soft && make dev-build  # Clean rebuild```
-
+# Run with coverage
+make coverage
 ```
 
-## Deployment
+## 📚 Documentation
 
-**Database errors:**
+All detailed guides are in the [`guides/`](guides/) directory:
 
-```bash### Production Considerations
+### Getting Started
 
-make migrate  # Run migrations
+- [Development Guide](guides/development/DEVELOPMENT.md) - Complete development workflow
+- [Docker Setup Guide](guides/docker/DOCKER_SETUP_GUIDE.md) - Comprehensive Docker configuration
+- [Manual Setup Guide](guides/development/SETUP_GUIDE_MANUAL.md) - Local development without Docker
 
-make seed     # Reseed RBAC data1. **Security**:
+### RBAC System
 
-```   - Change `SECRET_KEY` to a strong random value
+- [RBAC Guide](guides/rbac/RBAC_GUIDE.md) - Complete RBAC documentation
+- [RBAC Quick Reference](guides/rbac/RBAC_QUICK_REFERENCE.md) - Quick reference for roles and permissions
+- [RBAC Implementation](guides/rbac/RBAC_IMPLEMENTATION_SUMMARY.md) - Technical implementation details
 
-   - Set `DEBUG=False`
+### Configuration
 
-**Permission denied:**   - Update `ALLOWED_HOSTS` with your domain
+- [Settings Configuration](guides/configuration/SETTINGS_CONFIGURATION_GUIDE.md) - Django settings explained
+- [CORS Configuration](guides/configuration/DJANGO_CORS_HEADERS_GUIDE.md) - Frontend integration setup
+- [Multiple Frontends](guides/configuration/MULTIPLE_FRONTEND_SUPPORT.md) - Supporting multiple frontend apps
 
-```bash   - Use strong database passwords
+### Deployment
 
-docker compose down -v  # Remove volumes   - Enable HTTPS/SSL
+- [GitHub Checklist](guides/deployment/GITHUB_CHECKLIST.md) - Pre-deployment checklist
+- [Docker Fixes](guides/docker/DOCKER_FIXES.md) - Common Docker issues and solutions
 
-make clean-soft && make dev  # Fresh start
+## 🚢 Production Deployment
 
-```2. **Database**:
+### Production Checklist
 
-   - Use managed PostgreSQL service (AWS RDS, DigitalOcean, etc.)
+- [ ] Change `SECRET_KEY` to a strong random value
+- [ ] Set `DEBUG=False`
+- [ ] Configure `ALLOWED_HOSTS` with your domain
+- [ ] Use strong database passwords
+- [ ] Enable HTTPS/SSL
+- [ ] Set up external PostgreSQL (AWS RDS, DigitalOcean, etc.)
+- [ ] Set up external Redis
+- [ ] Configure cloud storage for media files (S3, Cloudinary, etc.)
+- [ ] Set up error tracking (Sentry)
+- [ ] Configure logging
+- [ ] Set up monitoring
+- [ ] Enable backups
 
-> See [`guides/docker/DOCKER_FIXES.md`](guides/docker/DOCKER_FIXES.md) for more solutions   - Enable automated backups
+### Production Configuration
 
-   - Set up replication if needed
+```env
+BUILD_TARGET=production
+DEBUG=False
+SECRET_KEY=<strong-random-secret>
+ALLOWED_HOSTS=yourdomain.com
+# Use external managed services
+DB_HOST=your-postgres-host
+REDIS_HOST=your-redis-host
+```
+
+Then start:
+
+```bash
+make prod-build
+```
+
+## 🛠️ Development Setup (Without Docker)
+
+1. **Create virtual environment**
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Set up environment variables**
+
+   ```bash
+   cp .env.example .env
+   # Configure your local database and Redis settings
+   ```
+
+4. **Run migrations**
+
+   ```bash
+   python manage.py migrate
+   python manage.py seed_rbac
+   ```
+
+5. **Create superuser**
+
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+6. **Run development server**
+
+   ```bash
+   python manage.py runserver
+   ```
 
 ## 🤝 Contributing
 
-3. **Static/Media Files**:
-
-1. Fork the repository   - Use cloud storage (AWS S3, Cloudinary, etc.)
-
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)   - Configure CDN for static files
-
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-
-4. Push to branch (`git push origin feature/AmazingFeature`)4. **Monitoring**:
-
-5. Open Pull Request   - Set up Sentry for error tracking
-
-   - Configure logging aggregation
-
-## 📄 License   - Monitor server resources
-
-
-
-[Your License Here]## License
-
-
-
-## 📞 Support[Your License Here]
-
-
-
-- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)## Contributing
-
-- **Documentation**: [`guides/`](guides/)
-
-- **Email**: support@yourapp.com1. Fork the repository
-
+1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-
----3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-Made with ❤️ by [Your Name/Team]5. Open a Pull Request
+## 📄 License
 
+[Your License Here]
 
-## Support
+## 📞 Support
 
-For issues and questions, please open an issue on GitHub.
+- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
+- **Documentation**: [`guides/`](guides/)
+- **Email**: <support@pronoyon.com>
+
+---
+
+Made with ❤️ by the Pronoyon Team
